@@ -1,4 +1,4 @@
-"\a\b\e\f\n\r\t\v\\\'\""
-
+Input String    : "\a\b\e\f\n\r\t\v\\\'\""
+Decoded String    : 
 	\'"
-"\a\b\e\f\n\r\t\v\\\'\""
+Output String    : "\a\b\e\f\n\r\t\v\\\'\""

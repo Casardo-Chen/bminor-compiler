@@ -4,11 +4,8 @@
 
 int main(int argc, char *argv[]){
     int status = EXIT_SUCCESS;
-    if (argc < 3){
-        printf("Usage:  ./bminor --encode input.minor\n");
-        return EXIT_FAILURE;
-    }
-    if (strcmp(argv[1],"--encode") == 0){
+    /* Encoder */
+    if (argc == 3 && strcmp(argv[1],"--encode") == 0 ){
         /* initialize the file read stream and variables */
         FILE* file = fopen(argv[2], "r");
         if (!file){
@@ -22,26 +19,33 @@ int main(int argc, char *argv[]){
         /* read in the test file */
         if(fgets(input, sizeof(input), file) != NULL){
             /* decode the code */
+            if (input[0] == '\0') {
+                printf("Empty Input\n");
+            }
             if (input[strlen(input)-2] == '\n') {
                 input[strlen(input)] = '\0';
             }
-            printf("%s", input);
+            printf("Input String    : %s", input);
             printf("\n");
             int result = string_decode(input, decoded);
             if (result == 1) {
-                printf("%s", decoded);
+                printf("Decoded String    : %s", decoded);
                 printf("\n");
                 string_encode(decoded, output);
-                printf("%s", output);
+                printf("Output String    : %s", output);
                 printf("\n");
             } else {
                 printf("Invalid String: %s\n", input);
-                printf("\n");
                 status = EXIT_FAILURE;
             }
+        } else {
+            printf("Null file descriptor\n");
+            status = EXIT_FAILURE;
         }
         fclose(file);
+    } else {
+        printf("Usage:  ./bminor --encode input.minor\n");
+        return EXIT_FAILURE;
     }
-    
     return status;
 }

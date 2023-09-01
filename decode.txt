@@ -1,9 +1,0 @@
-"hello, world!\n"
-hello "world!\n"\0
-"hello, world!\0x07"
-"hello, wor"ld!\0x07"
-#hi
-"hi"
-"hi\t"
-"hi\thi"
-"hi \nhi"

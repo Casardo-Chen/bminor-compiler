@@ -1,3 +1,3 @@
-"hello \0x00 world"
-hello 
-"hello "
+Input String    : "hello \0x01 world"
+Decoded String    : hello  world
+Output String    : "hello \0x01 world"

@@ -5,7 +5,7 @@ bool string_decode(const char *es, char *s) {
     int i = 0, j = 0, quote = 0;
     int len = strlen(es);
     // check if starts with a double quote
-    if (len == 0 || len == 1 || es[0] != '"') {
+    if (len == 0 || es[0] != '\"') {
         printf("Error: empty/not starting with \"\n");
         return false;
     }
@@ -89,12 +89,11 @@ bool string_decode(const char *es, char *s) {
                             return false; // Invalid hexadecimal escape sequence
                         }
                         // printf("value %d\n", (unsigned char)value);
-                        // if (value=0x00 && quote) {
-                        //     printf("value %d\n", (unsigned char)value);
-                        //     printf("quote: %d\n", quote);
-                        //     return false; // Invalid hexadecimal escape sequence
-                        // }
-                        s[j] = (char)value;
+                        if ((unsigned char)value==0 && quote) {
+                            printf("Error: \\0x00 appear before the string is closed\n");
+                            return false; // Invalid hexadecimal escape sequence
+                        }
+                        s[j] = (unsigned char)value;
                         break;
                     } else {
                         printf("Error: Invalid 0xHH\n");
@@ -201,5 +200,3 @@ void string_encode(const char *s, char *es) {
     es[j] = '\0'; // Null-terminate the encoded string
     return;
 }
-
-

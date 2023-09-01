@@ -1,4 +1,4 @@
-"hello world\n"
-hello world
+Input String    : "hello world\n"
+Decoded String    : hello world
 
-"hello world\n"
+Output String    : "hello world\n"

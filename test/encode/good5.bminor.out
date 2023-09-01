@@ -1,3 +1,3 @@
-"hello\0xcd"
-hello
-"hello"
+Input String    : "hello\0xcd"
+Decoded String    : helloÍ
+Output String    : "hello\0xCD"

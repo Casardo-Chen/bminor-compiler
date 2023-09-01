@@ -1,14 +1,24 @@
-CMP = gcc
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99
 FUNC = encoder
 MAIN = bminor
 EXEC = bminor
+TEST = runtest.sh
+
+# Directories
+TEST_DIR = test
+
 
 $(EXEC): $(MAIN).o $(FUNC).o
-	$(CMP) $(MAIN).o $(FUNC).o -o $(EXEC)
+	$(CC) $(CFLAGS) $(MAIN).o $(FUNC).o -o $(EXEC)
 $(FUNC).o: $(FUNC).c $(FUNC).h
-	$(CMP) -c $(FUNC).c -o $(FUNC).o
+	$(CC) $(CFLAGS) -c $(FUNC).c -o $(FUNC).o
 $(MAIN).o: $(MAIN).c $(FUNC).h
-	$(CMP) -c $(MAIN).c -o $(MAIN).o
+	$(CC) $(CFLAGS) -c $(MAIN).c -o $(MAIN).o
 clean:
 	rm $(EXEC)
 	rm *.o
+test:
+	./runtest.sh
+
+.PHONY: test
