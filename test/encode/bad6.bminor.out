@@ -1,3 +1,3 @@
-Input String    : "hello \0x00 world"
-Error: \0x00 appear before the string is closed
-Invalid String: "hello \0x00 world"
+Input String    : "hello \0xGG world"
+Error: Invalid hexadecimal escape sequence
+Invalid String: "hello \0xGG world"

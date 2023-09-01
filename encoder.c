@@ -19,7 +19,7 @@ bool string_decode(const char *es, char *s) {
         if (es[i] == '\\') {
             i++; // Skip the backslash
             if (i >= len) {
-                printf("Error: exceed the len\n");
+                printf("Error: exceed the length\n");
                 return false; // Backslash at the end of the string is invalid
             }
             // printf("es %d : %c\n", i, es[i]);
@@ -86,6 +86,7 @@ bool string_decode(const char *es, char *s) {
                         // Convert the hexadecimal string to an integer
                         int value;
                         if (sscanf(hex, "%x", &value) != 1) {
+                            printf("Error: Invalid hexadecimal escape sequence\n");
                             return false; // Invalid hexadecimal escape sequence
                         }
                         // printf("value %d\n", (unsigned char)value);
@@ -127,6 +128,7 @@ bool string_decode(const char *es, char *s) {
         i++;
         j++;
     }
+    printf("Error: Unclosed double quote\n");
     return false;
 }
 
