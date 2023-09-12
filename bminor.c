@@ -43,6 +43,16 @@ int main(int argc, char *argv[]){
             status = EXIT_FAILURE;
         }
         fclose(file);
+    } 
+    /* Scanner */
+    else if (argc == 3 && strcmp(argv[1],"--scanner") == 0 ) {
+        /* initialize the file read stream and variables */
+        FILE* file = fopen(argv[2], "r");
+        if (!file){
+            perror("Cannot open text\n");
+            return EXIT_FAILURE;
+        }
+
     } else {
         printf("Usage:  ./bminor --encode input.minor\n");
         return EXIT_FAILURE;
