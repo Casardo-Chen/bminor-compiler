@@ -1,0 +1,18 @@
+IDENTIFIER str
+COLON :
+STRING string
+ASSIGN =
+STRING_LITERAL 
+SEMICOLON ;
+IDENTIFIER str
+COLON :
+STRING string
+ASSIGN =
+STRING_LITERAL hello this is a string!
+SEMICOLON ;
+IDENTIFIER str
+COLON :
+STRING string
+ASSIGN =
+Error: Invalid escape sequence
+scan error: "hello this is \1 a string!" is not a valid character

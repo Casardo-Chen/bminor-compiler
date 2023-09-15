@@ -9,6 +9,10 @@ bool string_decode(const char *es, char *s) {
         printf("Error: empty/not starting with \"\n");
         return false;
     }
+    if (len > 255) {
+        printf("Error: length exceed 255 characters\n");
+        return false;
+    }
     // printf("es %d : %c\n", i, es[i]);
     i++;
     quote++;
@@ -84,16 +88,27 @@ bool string_decode(const char *es, char *s) {
                         hex[1] = es[i];
                         hex[2] = '\0';
                         // Convert the hexadecimal string to an integer
-                        int value;
-                        if (sscanf(hex, "%x", &value) != 1) {
+                        char *ptr;
+                        unsigned long value;
+                        value = strtoul(hex, &ptr, 16);
+                        if (*ptr != *(hex+2)) {
                             printf("Error: Invalid hexadecimal escape sequence\n");
                             return false; // Invalid hexadecimal escape sequence
                         }
-                        // printf("value %d\n", (unsigned char)value);
-                        if ((unsigned char)value==0 && quote) {
-                            printf("Error: \\0x00 appear before the string is closed\n");
-                            return false; // Invalid hexadecimal escape sequence
-                        }
+                        // if (value == 0) {
+                        //     printf("Error: \\0x00 appear before the string is closed\n");
+                        //     return false; // Invalid hexadecimal escape sequence
+                        // }
+                        // int value;
+                        // if (sscanf(hex, "%x", &value) != 1) {
+                        //     printf("Error: Invalid hexadecimal escape sequence\n");
+                        //     return false; // Invalid hexadecimal escape sequence
+                        // }
+                        // // printf("value %d\n", (unsigned char)value);
+                        // if ((unsigned char)value==0 && quote) {
+                        //     printf("Error: \\0x00 appear before the string is closed\n");
+                        //     return false; // Invalid hexadecimal escape sequence
+                        // }
                         s[j] = (unsigned char)value;
                         break;
                     } else {

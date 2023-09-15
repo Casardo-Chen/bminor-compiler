@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "./encoder.h"
+#include "encoder.h"
+#include "scanner_helper.h"
 
 int main(int argc, char *argv[]){
     int status = EXIT_SUCCESS;
@@ -44,17 +45,24 @@ int main(int argc, char *argv[]){
         }
         fclose(file);
     } 
+
     /* Scanner */
-    else if (argc == 3 && strcmp(argv[1],"--scanner") == 0 ) {
+    else if (argc == 3 && strcmp(argv[1],"--scan") == 0 ) {
         /* initialize the file read stream and variables */
         FILE* file = fopen(argv[2], "r");
         if (!file){
             perror("Cannot open text\n");
             return EXIT_FAILURE;
         }
-
-    } else {
-        printf("Usage:  ./bminor --encode input.minor\n");
+        if(scan(file)){
+            status = EXIT_FAILURE;
+        }
+        fclose(file);
+    } 
+    
+    
+    else {
+        printf("Usage:  ./bminor [--encode|--scan] input.bminor\n");
         return EXIT_FAILURE;
     }
     return status;
