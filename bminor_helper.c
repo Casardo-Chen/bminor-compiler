@@ -203,4 +203,8 @@ int encode(){
     }
     return EXIT_SUCCESS;
 }
+
+int parse(){
+    return EXIT_SUCCESS;
+}
  

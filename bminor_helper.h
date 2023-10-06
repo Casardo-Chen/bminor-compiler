@@ -10,4 +10,5 @@ extern char *yytext;
 
 int    encode();
 int    scan();
+int    parse();
 int    token_to_string( token_t token, char * yytext);
