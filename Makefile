@@ -1,7 +1,12 @@
+# c compilers
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
-FUNC = encoder
+
+# files
+ENCODER = encoder
+SCANNER = scanner
 MAIN = main
+HELPER = bminor_helper
 EXEC = bminor
 TEST = runtest.sh
 
@@ -9,22 +14,23 @@ TEST = runtest.sh
 TEST_DIR = test
 
 
-$(EXEC): $(MAIN).o $(FUNC).o scanner.o scanner_helper.o
-	$(CC) $(CFLAGS) $(MAIN).o $(FUNC).o scanner.o scanner_helper.o -o $(EXEC) 
-$(FUNC).o: $(FUNC).c $(FUNC).h
-	$(CC) $(CFLAGS) -c $(FUNC).c -o $(FUNC).o
+$(EXEC): $(MAIN).o $(ENCODER).o $(SCANNER).o $(HELPER).o
+	$(CC) $(CFLAGS) $(MAIN).o $(ENCODER).o $(SCANNER).o $(HELPER).o -o $(EXEC) 
+$(ENCODER).o: $(ENCODER).c $(ENCODER).h
+	$(CC) $(CFLAGS) -c $(ENCODER).c -o $(ENCODER).o
 
-scanner_helper.o: scanner_helper.c scanner_helper.h
-	$(CC) $(CFLAGS) -c scanner_helper.c -o scanner_helper.o
+bminor_helper.o: $(HELPER).c $(HELPER).h
+	$(CC) $(CFLAGS) -c $(HELPER).c -o $(HELPER).o
 
-scanner.c: scanner.flex
-	flex -o scanner.c scanner.flex
+$(SCANNER).c: $(SCANNER).flex
+	flex -o $(SCANNER).c $(SCANNER).flex
 
-scanner.o: scanner.c
-	$(CC) -o scanner.o -c scanner.c
+$(SCANNER).o: $(SCANNER).c
+	$(CC) $(CFLAGS) -o $(SCANNER).o -c $(SCANNER).c
 	
 $(MAIN).o: $(MAIN).c
-	$(CC) -c $(MAIN).c  -o $(MAIN).o 
+	$(CC) $(CFLAGS) -c $(MAIN).c  -o $(MAIN).o 
+
 clean:
 	rm $(EXEC)
 	rm *.o

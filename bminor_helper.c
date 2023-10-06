@@ -1,4 +1,4 @@
-#include "scanner_helper.h"
+#include "bminor_helper.h"
 
 int token_to_string (token_t token, char * yytext){
     // tokens
@@ -162,13 +162,45 @@ int token_to_string (token_t token, char * yytext){
     return 0;
 }
 
-int scan(FILE* input){
-    yyin = input;
+int scan(){
     while(1){
         int t = yylex();
         if (t==0) return 0;
         if (token_to_string(t, yytext) == 1) return 1;
     }
     return 0;
+}
+
+int encode(){
+    char input[BUFSIZ];
+    char decoded[BUFSIZ];
+    char output[BUFSIZ];
+    
+    if(fgets(input, sizeof(input), yyin) != NULL){
+        /* decode the code */
+        if (input[0] == '\0') {
+            printf("Empty Input\n");
+        }
+        if (input[strlen(input)-2] == '\n') {
+            input[strlen(input)] = '\0';
+        }
+        printf("Input String    : %s", input);
+        printf("\n");
+        int result = string_decode(input, decoded);
+        if (result == 1) {
+            printf("Decoded String    : %s", decoded);
+            printf("\n");
+            string_encode(decoded, output);
+            printf("Output String    : %s", output);
+            printf("\n");
+        } else {
+            printf("Invalid String: %s\n", input);
+            return EXIT_FAILURE;
+        }
+    } else {
+        printf("Null file descriptor\n");
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
  

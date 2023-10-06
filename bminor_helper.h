@@ -1,10 +1,13 @@
-#include "token.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include "token.h"
+#include "encoder.h"
 
 
 extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 
-int    scan(FILE *input);
+int    encode();
+int    scan();
 int    token_to_string( token_t token, char * yytext);
