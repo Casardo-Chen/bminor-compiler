@@ -5,20 +5,24 @@
 
 int main(int argc, char *argv[]){
     int status = EXIT_SUCCESS;
+    /* I/O */
+    if (argc < 3) {
+        fprintf(stderr, "Usage:  ./bminor [--encode|--scan] input.bminor\n");
+        return EXIT_FAILURE;
+    }
+    yyin = fopen(argv[2], "r");
+    if (!yyin) {
+        fprintf(stderr, "could not open %s!\n", argv[2]);
+        return EXIT_FAILURE;
+    }
     /* Encoder */
-    if (argc == 3 && strcmp(argv[1],"--encode") == 0 ){
-        /* initialize the file read stream and variables */
-        FILE* file = fopen(argv[2], "r");
-        if (!file){
-            perror("Cannot open text\n");
-            return EXIT_FAILURE;
-        }
+    if (strcmp(argv[1],"--encode") == 0 ){    
         char input[BUFSIZ];
         char decoded[BUFSIZ];
         char output[BUFSIZ];
         
         /* read in the test file */
-        if(fgets(input, sizeof(input), file) != NULL){
+        if(fgets(input, sizeof(input), yyin) != NULL){
             /* decode the code */
             if (input[0] == '\0') {
                 printf("Empty Input\n");
@@ -43,27 +47,12 @@ int main(int argc, char *argv[]){
             printf("Null file descriptor\n");
             status = EXIT_FAILURE;
         }
-        fclose(file);
     } 
 
     /* Scanner */
-    else if (argc == 3 && strcmp(argv[1],"--scan") == 0 ) {
-        /* initialize the file read stream and variables */
-        FILE* file = fopen(argv[2], "r");
-        if (!file){
-            perror("Cannot open text\n");
-            return EXIT_FAILURE;
-        }
-        if(scan(file)){
-            status = EXIT_FAILURE;
-        }
-        fclose(file);
+    if (strcmp(argv[1],"--scan") == 0 ) {
+        status = scan(yyin); 
     } 
-    
-    
-    else {
-        printf("Usage:  ./bminor [--encode|--scan] input.bminor\n");
-        return EXIT_FAILURE;
-    }
+    fclose(yyin);
     return status;
 }
