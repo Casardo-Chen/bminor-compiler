@@ -69,7 +69,7 @@ while                               { return TOKEN_WHILE;         }
 
     /*  blank & comment    */
 \/\*(([^\*])|(\*+[^\/\*]))*\*+\/     {                             ;}   
-\/\/[^\n]*\n                         {                             ;}   
+\/\/.*                               {                             ;}   
 [ \n\t\r]+                           {                             ;}
     /*  literal & identifier    */
 {INT}                               { return TOKEN_INT_LIT;            }

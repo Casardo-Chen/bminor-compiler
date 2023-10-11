@@ -24,7 +24,12 @@ int main(int argc, char *argv[]){
     } 
     /* Parser */
     if (strcmp(argv[1],"--parse") == 0 ) {
-        status = parse(); 
+        if (!scan()) {
+            yyin = fopen(argv[2], "r");
+            status = parse(); 
+        } else {
+            status = EXIT_FAILURE;
+        }
     } 
     fclose(yyin);
     return status;

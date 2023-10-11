@@ -86,6 +86,7 @@ extern int yyerror( char *str );
 
 %%    
 program : decl_s                                {}
+        |                                       {}
         ;
 
 /* EXPRESSION */
@@ -176,7 +177,7 @@ id      : TOKEN_IDENT                           {}
 
 /* DECLARATION */
 decl_s  : decl decl_s                           {}
-        | /*e*/                                 {return 0;}             // empty file
+        | decl
         ;
 
 decl    : id TOKEN_COLON type TOKEN_ASSIGN expr_br TOKEN_SEMICOL        {}
