@@ -25,6 +25,10 @@ TEST = runtest.sh
 ###############
 TEST_DIR = test
 
+
+###############
+# 	  make    #
+###############
 $(EXEC): $(MAIN).o $(HELPER).o $(ENCODER).o $(SCANNER).o $(PARSER).o
 	$(CC) $(CFLAGS) -o $@ $^ 
 
@@ -41,7 +45,7 @@ $(SCANNER).o: $(SCANNER).c $(TOKEN).h
 
 # parser
 $(PARSER).c $(TOKEN).h: $(PARSER).y
-	bison --defines=$(TOKEN).h -o $(PARSER).c $^ -v
+	bison --defines=$(TOKEN).h --output=$(PARSER).c $^ -v
 
 $(PARSER).o: $(PARSER).c
 	$(CC) $(CFLAGS) -c $^  -o $@
@@ -79,6 +83,7 @@ clean:
 	rm *.o
 	rm $(EXEC)
 
+# test
 test:
 	make
 	./runtest.sh

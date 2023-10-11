@@ -1,6 +1,8 @@
 #!/bin/sh
 
+echo "start testing ..."
 # encode
+echo "testing encoder ..."
 for testfile in ./test/encode/good*.bminor
 do
 	if ./bminor --encode $testfile > $testfile.out
@@ -22,6 +24,7 @@ do
 done
 
 # scan
+echo "testing scanner ..."
 for testfile in ./test/scanner/good*.bminor
 do
 	if ./bminor --scan $testfile > $testfile.out
@@ -44,6 +47,7 @@ done
 
 
 # parser
+echo "testing parser ..."
 for testfile in ./test/parser/good*.bminor
 do
 	if ./bminor --parse $testfile > $testfile.out
@@ -63,3 +67,5 @@ do
 		echo "$testfile failure (as expected)"
 	fi
 done
+
+echo "testing completed"

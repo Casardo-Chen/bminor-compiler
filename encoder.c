@@ -6,27 +6,24 @@ bool string_decode(const char *es, char *s) {
     int len = strlen(es);
     // check if starts with a double quote
     if (len == 0 || es[0] != '\"') {
-        printf("Error: empty/not starting with \"\n");
+        printf("encode error: empty/not starting with \"\n");
         return false;
     }
     if (len > 255) {
-        printf("Error: length exceed 255 characters\n");
+        printf("encode error: length exceed 255 characters\n");
         return false;
     }
-    // printf("es %d : %c\n", i, es[i]);
     i++;
     quote++;
 
     while (i < len) {
         // Check for a backslash code
-        // printf("es %d : %c\n", i, es[i]);
         if (es[i] == '\\') {
             i++; // Skip the backslash
             if (i >= len) {
-                printf("Error: exceed the length\n");
+                printf("encode error: exceed the length\n");
                 return false; // Backslash at the end of the string is invalid
             }
-            // printf("es %d : %c\n", i, es[i]);
             // Handle escaped characters
             switch (es[i]) {
                 case 'a':
@@ -74,14 +71,14 @@ bool string_decode(const char *es, char *s) {
                         char hex[3]; 
                         i++;
                         if (i >= len) {
-                            printf("Error: exceed the len\n");
+                            printf("encode error: exceed the len\n");
                             return false;
                         }
                         hex[0] = es[i]; 
                         // printf("es %d : %c\n", i, es[i]);
                         i++;
                         if (i >= len) {
-                            printf("Error: exceed the len\n");
+                            printf("encode error: exceed the len\n");
                             return false;
                         }
                         // printf("es %d : %c\n", i, es[i]);
@@ -92,7 +89,7 @@ bool string_decode(const char *es, char *s) {
                         unsigned long value;
                         value = strtoul(hex, &ptr, 16);
                         if (*ptr != *(hex+2)) {
-                            printf("Error: Invalid hexadecimal escape sequence\n");
+                            printf("encode error: Invalid hexadecimal escape sequence\n");
                             return false; // Invalid hexadecimal escape sequence
                         }
                         // if (value == 0) {
@@ -112,11 +109,11 @@ bool string_decode(const char *es, char *s) {
                         s[j] = (unsigned char)value;
                         break;
                     } else {
-                        printf("Error: Invalid 0xHH\n");
+                        printf("encode error: Invalid 0xHH\n");
                         return false;
                     }
                 default:
-                    printf("Error: Invalid escape sequence\n");
+                    printf("encode error: Invalid escape sequence\n");
                     return false; // Invalid escape sequence
             }
         } else if (es[i] == '\"') { 
@@ -130,11 +127,10 @@ bool string_decode(const char *es, char *s) {
                 // |l-1 |l-2    |l-1    | 
                 // |"   |\      |0      |
                 s[j] = '\0'; // Null-terminate the decoded string
-                // printf("Success: get the decoded string\n");
                 return true;
             } else {
                 // Unescaped quote in the middle is invalid
-                printf("Error: Unescaped quote in the middle is invalid\n");
+                printf("encode error: Unescaped quote in the middle is invalid\n");
                 return false;
             }
         } else {
@@ -143,7 +139,7 @@ bool string_decode(const char *es, char *s) {
         i++;
         j++;
     }
-    printf("Error: Unclosed double quote\n");
+    printf("encode error: Unclosed double quote\n");
     return false;
 }
 
