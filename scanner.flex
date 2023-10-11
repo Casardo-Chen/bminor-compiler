@@ -3,15 +3,19 @@
 
 %{
 #include "token.h"
+#include "bminor_helper.h"
 #include <stdbool.h>
 
+token_t check_string(char *yytext);
+token_t check_char(char *yytext);
+token_t check_ident(char *yytext);
 extern bool string_decode(const char *es, char *s);
 %}
 
 
 IDENT               [a-zA-Z_][a-zA-Z0-9_]{0,254}
-INT                 [+-]?[0-9]+
-FLOAT               [+-]?[0-9]*\.?[0-9]+([eE][+-]?[0-9]+)?
+INT                 [0-9]+
+FLOAT               [0-9]*\.?[0-9]+([eE][+-]?[0-9]+)?
 CHAR                \'(\\[abefnrtv\'"0-9]|\\0x[0-9a-fA-F][0-9a-fA-F]|.)\'
 STRING              \"([^\"\0\n\t]|(\\.))*\"
 
@@ -95,6 +99,9 @@ token_t check_char(char *  yytext) {
     *src = '\"';
     // check for end
     while (src){
+        if (*src=='\'' && !*(src+1)=='\0'){
+            return TOKEN_ERROR;
+        }
         if (*src=='\'' && *(src+1)=='\0'){
             *src='\"';
             break;

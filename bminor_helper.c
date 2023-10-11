@@ -205,6 +205,13 @@ int encode(){
 }
 
 int parse(){
-    return EXIT_SUCCESS;
+    if(yyparse()==0) {
+		printf("Parse successful!\n");
+		return EXIT_SUCCESS;
+	} else {
+		printf("Parse failed.\n");
+		return EXIT_FAILURE;
+	}
+
 }
  
