@@ -25,6 +25,7 @@ int main(int argc, char *argv[]){
     /* Parser */
     if (strcmp(argv[1],"--parse") == 0 ) {
         status = parse(); 
+        printf("status: %d\n", status);
     } 
     fclose(yyin);
     return status;

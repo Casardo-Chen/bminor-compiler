@@ -1,3 +1,0 @@
-Input String    : "hello \0xGG world"
-Error: Invalid hexadecimal escape sequence
-Invalid String: "hello \0xGG world"

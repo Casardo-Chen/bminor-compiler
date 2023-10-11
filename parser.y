@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 extern char *yytext;
 extern int yylex();
 extern int yyerror( char *str );
@@ -66,8 +65,6 @@ extern int yyerror( char *str );
 %token TOKEN_AND               
 %token TOKEN_ERROR  
 
-%start program
-
 %union {    
     struct stmt *stmt;
     struct decl *decl;
@@ -82,28 +79,30 @@ extern int yyerror( char *str );
 %type <type> type
 %type <param_list> param param_opt_list param_list
 
+%start program
+
 %%    
-program : decl_s TOKEN_SEMICOL                    {printf("start\n");}
+program : decl_s                                {printf("start\n");}
         ;
 
 /* EXPRESSION */
 expr    : expr_8                                {}
         ;
 
-expr_opt  : expr
-          | /*e*/ 
+expr_opt  : expr                                {}
+          | /*e*/                               {}
           ;
 
 expr_list : expr TOKEN_COMMA expr_list          {}
           | expr                                {}
           ;
 
-expr_opt_list   : expr_list                             {}
-                | /*e*/                                    {}               // epsilon
+expr_opt_list   : expr_list                     {}
+                | /*e*/                         {}               // epsilon
                 ;
 
-expr_br : TOKEN_LBRACE expr_opt_list TOKEN_RBRACE
-        | TOKEN_LBRACE expr_opt_list TOKEN_RBRACE expr_br
+expr_br : TOKEN_LBRACE expr_opt_list TOKEN_RBRACE               {}
+        | TOKEN_LBRACE expr_opt_list TOKEN_RBRACE expr_br       {}
         | expr_list
         ;
 
@@ -153,7 +152,7 @@ expr_0  : expr_0 TOKEN_INCREMENT                        {}
         | expr_0 TOKEN_DECREMENT                        {}
         | TOKEN_LPAREN expr TOKEN_RPAREN                {}                               // ()
         | expr_0 TOKEN_LBRACKET expr TOKEN_RBRACKET     {}                         // []  | a[b]
-        | id TOKEN_LPAREN expr_opt_list TOKEN_RPAREN           {}                     // f() | f(a,b)
+        | id TOKEN_LPAREN expr_opt_list TOKEN_RPAREN    {}                     // f() | f(a,b)
         | atomic                                        {}
         ;       
 
@@ -173,34 +172,34 @@ id      : TOKEN_IDENT                           {printf("id\n");}
         ;
 
 /* DECLARATION */
-decl_s  : decl decl_s
-        | /*e*/
+decl_s  : decl decl_s                           {printf("decl s\n");}
+        | /*e*/                                 {printf("empty\n");}
         ;
 
-decl    : id TOKEN_COLON type TOKEN_ASSIGN expr_br TOKEN_SEMICOL 
-        | id TOKEN_COLON type TOKEN_ASSIGN stmt_br  
+decl    : id TOKEN_COLON type TOKEN_ASSIGN expr_br TOKEN_SEMICOL        {}
+        | id TOKEN_COLON type TOKEN_ASSIGN stmt_br                      {}
         | id TOKEN_COLON type TOKEN_SEMICOL                             {printf("decl w/o =\n");}
         ;
 
 /* STATEMENT */
-stmt_s  : stmt stmt_s
-        | /*e*/
+stmt_s  : stmt stmt_s                           {}
+        | /*e*/                                 {}
         ;
 
-stmt    : stmt_1
-        | stmt_2
-        |
+stmt    : stmt_1                                {}
+        | stmt_2                                {}
+        |                                       {}
         ;
 
-stmt_1  : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt_1                                      
-        | TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt_2 TOKEN_ELSE stmt_1  
-        | TOKEN_FOR TOKEN_LPAREN expr_opt TOKEN_SEMICOL expr_opt TOKEN_SEMICOL expr_opt TOKEN_RPAREN stmt_1
-        | stmt_t
+stmt_1  : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt_1                                                        {}                                   
+        | TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt_2 TOKEN_ELSE stmt_1                                      {}
+        | TOKEN_FOR TOKEN_LPAREN expr_opt TOKEN_SEMICOL expr_opt TOKEN_SEMICOL expr_opt TOKEN_RPAREN stmt_1     {}
+        | stmt_t                                                                                                {}
         ;
 
-stmt_2  : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt_2 TOKEN_ELSE stmt_1
-        | TOKEN_FOR TOKEN_LPAREN expr_opt TOKEN_SEMICOL expr_opt TOKEN_SEMICOL expr_opt TOKEN_RPAREN stmt_1
-        | stmt_t
+stmt_2  : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt_2 TOKEN_ELSE stmt_1                                      {}
+        | TOKEN_FOR TOKEN_LPAREN expr_opt TOKEN_SEMICOL expr_opt TOKEN_SEMICOL expr_opt TOKEN_RPAREN stmt_1     {}
+        | stmt_t                                                                                                {}
         ;
 
 stmt_t  : decl                                          {}
@@ -210,34 +209,32 @@ stmt_t  : decl                                          {}
         | stmt_br                                                      
         ;
 
-stmt_br : TOKEN_LBRACE stmt_s TOKEN_RBRACE
+stmt_br : TOKEN_LBRACE stmt_s TOKEN_RBRACE              {}
         ;  
 
 
 /* TYPE */
-type    : TOKEN_STRING                        {printf("str\n");} 
-        | TOKEN_INT                           {}
-        | TOKEN_FLOAT                         {}
-        | TOKEN_CHAR                          {}
-        | TOKEN_VOID                          {}
-        | TOKEN_BOOLEAN                       {}
-        | TOKEN_AUTO                          {}
-        | TOKEN_ARRAY TOKEN_LBRACKET expr_opt_list TOKEN_RBRACKET type
-        | TOKEN_FUNCTION type TOKEN_LPAREN param_opt_list TOKEN_RPAREN {printf("func\n");}
+type    : TOKEN_INT                                                     {}
+        | TOKEN_FLOAT                                                   {}
+        | TOKEN_CHAR                                                    {}
+        | TOKEN_STRING                                                  {printf("str\n");} 
+        | TOKEN_VOID                                                    {}
+        | TOKEN_BOOLEAN                                                 {}
+        | TOKEN_AUTO                                                    {}
+        | TOKEN_ARRAY TOKEN_LBRACKET expr_opt_list TOKEN_RBRACKET type  {}
+        | TOKEN_FUNCTION type TOKEN_LPAREN param_opt_list TOKEN_RPAREN  {printf("func\n");}
         ;
 
 /* PARAMETER */
-param_opt_list  : param_list {printf("opt\n");}
-                |
-                ;
+param_opt_list  : param_list                    {printf("opt\n");}
+                |                               {}
+                ;       
 
 param_list      : param TOKEN_COMMA param_list  {printf("paramlist\n");}
                 ;
 
-param   : id TOKEN_COLON type                    {printf("param\n");}
+param   : id TOKEN_COLON type                   {printf("param\n");}
         ;
-
-
 
 %%
 int yyerror( char *str ){

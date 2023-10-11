@@ -25,7 +25,6 @@ TEST = runtest.sh
 ###############
 TEST_DIR = test
 
-
 $(EXEC): $(MAIN).o $(HELPER).o $(ENCODER).o $(SCANNER).o $(PARSER).o
 	$(CC) $(CFLAGS) -o $@ $^ 
 
@@ -68,6 +67,9 @@ clean-test:
 	rm -rf ./test/encode/good*.bminor.out
 	rm -rf ./test/scanner/good*.bminor.out
 	rm -rf ./test/parser/good*.bminor.out
+	rm -rf ./test/encode/bad*.bminor.out
+	rm -rf ./test/scanner/bad*.bminor.out
+	rm -rf ./test/parser/bad*.bminor.out
 
 clean:
 	rm token.h 

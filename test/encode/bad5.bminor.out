@@ -1,3 +1,0 @@
-Input String    : "this\string\has\a\lot\of\slashes"
-Error: Invalid escape sequence
-Invalid String: "this\string\has\a\lot\of\slashes"
