@@ -105,7 +105,7 @@ expr_opt  : expr                                { $$ = $1; }
           | /*e*/                               { $$ = 0; }
           ;
 
-expr_list : expr TOKEN_COMMA expr_list          { $$ = expr_create(EXPR_ARG, $1, $3); }
+expr_list : expr TOKEN_COMMA expr_list          { $$ = expr_create(EXPR_ARG, $1, $3,8); }
           | expr                                { $$ = $1; }
           ;
 
@@ -113,58 +113,58 @@ expr_opt_list   : expr_list                     { $$ = $1; }
                 | /*e*/                         { $$ = 0; }          
                 ;
 
-expr_br : TOKEN_LBRACE expr_br TOKEN_RBRACE                               { $$ = expr_create(EXPR_BR, $2, 0); }
-        | TOKEN_LBRACE expr_br TOKEN_RBRACE TOKEN_COMMA expr_br           { $$ = expr_create(EXPR_BR, $2, $5); }
+expr_br : TOKEN_LBRACE expr_br TOKEN_RBRACE                               { $$ = expr_create(EXPR_BR, $2, 0, 8); }
+        | TOKEN_LBRACE expr_br TOKEN_RBRACE TOKEN_COMMA expr_br           { $$ = expr_create(EXPR_BR, $2, $5,8); }
         | expr_list                                                       { $$ = $1;}
         ;
 
-expr_8  : expr_7 TOKEN_ASSIGN expr_8            { $$ = expr_create(EXPR_ASSIGN, $1, $3); }
+expr_8  : expr_7 TOKEN_ASSIGN expr_8            { $$ = expr_create(EXPR_ASSIGN, $1, $3,0); }
         | expr_7                                { $$ = $1; }
         ;
 
-expr_7  : expr_7 TOKEN_OR expr_6                { $$ = expr_create(EXPR_OR, $1, $3); }
+expr_7  : expr_7 TOKEN_OR expr_6                { $$ = expr_create(EXPR_OR, $1, $3,1); }
         | expr_6                                { $$ = $1; }
         ;
 
-expr_6  : expr_6 TOKEN_AND expr_5               { $$ = expr_create(EXPR_AND, $1, $3);}
+expr_6  : expr_6 TOKEN_AND expr_5               { $$ = expr_create(EXPR_AND, $1, $3,2);}
         | expr_5                                { $$ = $1; }
         ;
 
-expr_5  : expr_5 TOKEN_LT expr_4                { $$ = expr_create(EXPR_LT, $1, $3); }
-        | expr_5 TOKEN_LTE expr_4               { $$ = expr_create(EXPR_LTE, $1, $3); }
-        | expr_5 TOKEN_GT expr_4                { $$ = expr_create(EXPR_GT, $1, $3); }
-        | expr_5 TOKEN_GTE expr_4               { $$ = expr_create(EXPR_GTE, $1, $3);}
-        | expr_5 TOKEN_EQ expr_4                { $$ = expr_create(EXPR_EQ, $1, $3); }
-        | expr_5 TOKEN_NOT_EQ expr_4            { $$ = expr_create(EXPR_NOT_EQ, $1, $3); }
+expr_5  : expr_5 TOKEN_LT expr_4                { $$ = expr_create(EXPR_LT, $1, $3,3); }
+        | expr_5 TOKEN_LTE expr_4               { $$ = expr_create(EXPR_LTE, $1, $3,3); }
+        | expr_5 TOKEN_GT expr_4                { $$ = expr_create(EXPR_GT, $1, $3,3); }
+        | expr_5 TOKEN_GTE expr_4               { $$ = expr_create(EXPR_GTE, $1, $3,3);}
+        | expr_5 TOKEN_EQ expr_4                { $$ = expr_create(EXPR_EQ, $1, $3,3); }
+        | expr_5 TOKEN_NOT_EQ expr_4            { $$ = expr_create(EXPR_NOT_EQ, $1, $3,3); }
         | expr_4                                { $$ = $1; }
         ;
 
-expr_4  : expr_4 TOKEN_PLUS expr_3              { $$ = expr_create(EXPR_ADD,$1,$3); }
-        | expr_4 TOKEN_MINUS expr_3             { $$ = expr_create(EXPR_SUB,$1,$3); }
+expr_4  : expr_4 TOKEN_PLUS expr_3              { $$ = expr_create(EXPR_ADD,$1,$3,4); }
+        | expr_4 TOKEN_MINUS expr_3             { $$ = expr_create(EXPR_SUB,$1,$3,4); }
         | expr_3                                { $$ = $1; }
         ;
 
-expr_3  : expr_3 TOKEN_MULT expr_2              { $$ = expr_create(EXPR_MUL,$1,$3); }
-        | expr_3 TOKEN_DIV expr_2               { $$ = expr_create(EXPR_DIV,$1,$3); }
-        | expr_3 TOKEN_MOD expr_2               { $$ = expr_create(EXPR_MOD,$1,$3); }
+expr_3  : expr_3 TOKEN_MULT expr_2              { $$ = expr_create(EXPR_MUL,$1,$3,5); }
+        | expr_3 TOKEN_DIV expr_2               { $$ = expr_create(EXPR_DIV,$1,$3,5); }
+        | expr_3 TOKEN_MOD expr_2               { $$ = expr_create(EXPR_MOD,$1,$3,5); }
         | expr_2                                { $$ = $1; }
         ;
 
-expr_2  : expr_2 TOKEN_EXP expr_1               { $$ = expr_create(EXPR_EXP,$1,$3);}
+expr_2  : expr_2 TOKEN_EXP expr_1               { $$ = expr_create(EXPR_EXP,$1,$3,6);}
         | expr_1                                { $$ = $1; }
         ;
 
-expr_1  : TOKEN_NOT expr_0                      { $$ = expr_create(EXPR_NOT,$2,0);}
-        | TOKEN_PLUS expr_0                     { $$ = expr_create(EXPR_POS,$2,0);}
-        | TOKEN_MINUS expr_0                    { $$ = expr_create(EXPR_NEG,$2,0);}
+expr_1  : TOKEN_NOT expr_0                      { $$ = expr_create(EXPR_NOT,$2,0,7);}
+        | TOKEN_PLUS expr_0                     { $$ = expr_create(EXPR_POS,$2,0,7);}
+        | TOKEN_MINUS expr_0                    { $$ = expr_create(EXPR_NEG,$2,0,7);}
         | expr_0                                { $$ = $1; }
         ;
 
-expr_0  : expr_0 TOKEN_INCREMENT                        { $$ = expr_create(EXPR_INCREMENT,$1,0); }
-        | expr_0 TOKEN_DECREMENT                        { $$ = expr_create(EXPR_DECREMENT,$1,0); }
-        | TOKEN_LPAREN expr TOKEN_RPAREN                { $$ = expr_create(EXPR_PAREN,$2,0);}        // (a)
-        | expr_0 TOKEN_LBRACKET expr TOKEN_RBRACKET     { $$ = expr_create(EXPR_SUBT,$1,$3);}        // a[b]
-        | id TOKEN_LPAREN expr_opt_list TOKEN_RPAREN    { $$ = expr_create(EXPR_CALL,$1,$3);}        // f() | f(a,b)
+expr_0  : expr_0 TOKEN_INCREMENT                        { $$ = expr_create(EXPR_INCREMENT,$1,0,8); }
+        | expr_0 TOKEN_DECREMENT                        { $$ = expr_create(EXPR_DECREMENT,$1,0,8); }
+        | TOKEN_LPAREN expr TOKEN_RPAREN                { $$ = $2;}        // (a)
+        | expr_0 TOKEN_LBRACKET expr TOKEN_RBRACKET     { $$ = expr_create(EXPR_SUBT,$1,$3,8);}        // a[b]
+        | id TOKEN_LPAREN expr_opt_list TOKEN_RPAREN    { $$ = expr_create(EXPR_CALL,$1,$3,8);}        // f() | f(a,b)
         | atomic                                        { $$ = $1; }
         ;       
 

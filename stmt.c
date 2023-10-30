@@ -35,7 +35,7 @@ void stmt_print( struct stmt *s, int indent ){
             break;
 
         case STMT_IF_ELSE:
-            if (!s->pre_indent) indent_print(indent);
+            if (s->pre_indent) indent_print(indent);
             printf("if (");
             expr_print(s->expr);
             printf(") ");

@@ -1,2 +1,2 @@
-c: char = '	';
-c: char = '';
+c: char = '\t';
+c: char = '\r';

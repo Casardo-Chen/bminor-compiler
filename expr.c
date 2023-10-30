@@ -2,7 +2,7 @@
 #include "encoder.h"
 #include "library.c"
 
-struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ){
+struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right, int precedence ){
     struct expr *e = (struct expr * )malloc(sizeof(struct expr));
     if(!e){
         printf("print error: failed to allocate memory for expr.\n");
@@ -16,6 +16,7 @@ struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right ){
     e->literal_value = 0;
     e->string_literal = NULL;
     e->symbol = NULL;
+    e->precedence = precedence;
 
     return e;
 }
@@ -33,6 +34,7 @@ struct expr * expr_create_name( const char *n ){
     e->literal_value = 0;
     e->string_literal = NULL;
     e->symbol = NULL;
+    e->precedence = 8;
 
     return e;
 }
@@ -50,6 +52,7 @@ struct expr * expr_create_integer_literal( int c ){
     e->literal_value = c;
     e->string_literal = NULL;
     e->symbol = NULL;
+    e->precedence = 8;
     
     return e;
 }
@@ -67,6 +70,7 @@ struct expr * expr_create_boolean_literal( int c ){
     e->literal_value = c;
     e->string_literal = NULL;
     e->symbol = NULL;
+    e->precedence = 8;
     
     return e;
 }
@@ -84,6 +88,7 @@ struct expr * expr_create_float_literal( const char *f ){
     e->literal_value = 0;
     e->string_literal = strdup(f);
     e->symbol = NULL;
+    e->precedence = 8;
     
     return e;
 }
@@ -101,6 +106,7 @@ struct expr * expr_create_char_literal( char c ){
     e->literal_value = (int) c;
     e->string_literal = NULL;
     e->symbol = NULL;
+    e->precedence = 8;
     
     return e;
 
@@ -119,6 +125,7 @@ struct expr * expr_create_string_literal( const char *str ){
     e->literal_value = 0;
     e->string_literal = strdup(str);
     e->symbol = NULL;
+    e->precedence = 8;
     
     return e;
 
@@ -126,50 +133,69 @@ struct expr * expr_create_string_literal( const char *str ){
 
 void expr_print( struct expr *e ){
     if(!e) return;
+
+    // handling char and string
     char es[BUFSIZ];
+    char s[2] = "\0";
+    char ec[BUFSIZ];
+
     switch (e->kind){
     case EXPR_ADD:
+        e = expr_check(e,LEFT);
         print_op(e, "+");
         break;
     case EXPR_AND:
+        e = expr_check(e,LEFT);
         print_op(e, "&&");
         break;
     case EXPR_ASSIGN:
+        e = expr_check(e,RIGHT);
         print_op(e, "=");
         break;
     case EXPR_DIV:
+        e = expr_check(e,LEFT);
         print_op(e, "/");
         break;
     case EXPR_DECREMENT:
+        e = expr_check(e,LEFT);
         expr_print(e->left);
         printf("--");
         break;
     case EXPR_EQ:
+        e = expr_check(e,LEFT);
         print_op(e, "==");
         break;
     case EXPR_EXP:
+        e = expr_check(e,LEFT);
         print_op(e, "^");
         break;
     case EXPR_GT:
+        e = expr_check(e,LEFT);
         print_op(e, ">");
         break;
     case EXPR_GTE:
+        e = expr_check(e,LEFT);
         print_op(e, ">=");
         break;
     case EXPR_INCREMENT:
+        e = expr_check(e,LEFT);
         expr_print(e->left);
         printf("++");
         break;
     case EXPR_LT:
+        e = expr_check(e,LEFT);
         print_op(e, "<");
         break;
     case EXPR_LTE:
+        e = expr_check(e,LEFT);
         print_op(e, "<=");
         break;
     case EXPR_MOD:
+        e = expr_check(e,LEFT);
         print_op(e, "\%");
         break;
     case EXPR_MUL:
+        e = expr_check(e,LEFT);
         print_op(e, "*");
         break;
     case EXPR_NEG:
@@ -177,13 +203,16 @@ void expr_print( struct expr *e ){
         expr_print(e->left);
         break;
     case EXPR_NOT:
+        e = expr_check(e,NONE);
         printf("!");
         expr_print(e->left);
         break;
     case EXPR_NOT_EQ:
+        e = expr_check(e,LEFT);
         print_op(e, "!=");
         break;
     case EXPR_OR:
+        e = expr_check(e,LEFT);
         print_op(e, "||");
         break;
     case EXPR_POS:
@@ -195,11 +224,12 @@ void expr_print( struct expr *e ){
             expr_print(e->left);
             break;
         };
-        printf("( ");
+        printf("(");
         expr_print(e->left);
-        printf(" )");
+        printf(")");
         break;
     case EXPR_SUB:
+        e = expr_check(e,LEFT);
         print_op(e, "-");
         break;
     
@@ -213,9 +243,10 @@ void expr_print( struct expr *e ){
         print_boolean(e->literal_value);
         break;
     case EXPR_CHAR_LIT:
-        printf("'");
-        print_character((char)e->literal_value);
-        printf("'");
+		s[0] = (char)e->literal_value;
+		string_encode(s, es);
+		sscanf(es, "\"%[^\"]", ec);
+		printf("\'%s\'", ec);
         break;
     case EXPR_FLOAT_LIT:
         printf("%g", atof(e->string_literal));
@@ -250,6 +281,7 @@ void expr_print( struct expr *e ){
         if (e->right) printf(",");
         expr_print(e->right);
         break;
+
     default:
         printf("print error: invalid expression type found.\n");
         exit(1);
@@ -263,3 +295,24 @@ void print_op(struct expr *e, const char * op ){
     expr_print(e->right);
 }
 
+struct expr * expr_check( struct expr *e, assoc_t assoc) {
+    // check if the paren is necessary
+    // precedence represents the level of the node in the AST tree
+    if (e->left && e->left->precedence < e->precedence) {
+        e->left = expr_wrap(e->left);
+    }
+    if (e->right && e->right->precedence < e->precedence) {
+        e->right = expr_wrap(e->right);
+    }
+    if (assoc == LEFT && e->right && e->right->precedence == e->precedence) {
+        e->right = expr_wrap(e->right);
+    }
+    if (assoc == RIGHT && e->left && e->left->precedence == e->precedence) {
+        e->left = expr_wrap(e->left);
+    }
+    return e;
+}
+
+struct expr * expr_wrap( struct expr * e ){
+    return expr_create(EXPR_PAREN, e, 0, 8);
+}

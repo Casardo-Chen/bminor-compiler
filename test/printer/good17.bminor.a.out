@@ -1,6 +1,4 @@
 testfunc: function void ( x: integer, y: integer, z: integer ) = {
-    r: integer;
-    b: boolean;
     r=(x+y)/z;
     r=x+(y+z);
     b=(true||false)&&(false||true);
