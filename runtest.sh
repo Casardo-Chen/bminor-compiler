@@ -68,4 +68,26 @@ do
 	fi
 done
 
+# printer
+echo "testing printer ..."
+for testfile in ./test/printer/good*.bminor
+do
+	if ./bminor --print $testfile > $testfile.a.out
+	then
+		if ./bminor --print $testfile.a.out > $testfile.b.out
+		then
+			if diff $testfile.a.out $testfile.b.out > $testfile.out
+			then 
+				echo "$testfile success (as expected)"
+			else
+				echo "$testfile failure (difference found) (INCORRECT)"
+			fi
+		else
+			echo "$testfile failure (2 parsing) (INCORRECT)"
+		fi
+	else
+		echo "$testfile failure (1st parsing) (INCORRECT)"
+	fi
+done
+
 echo "testing completed"

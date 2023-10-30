@@ -62,7 +62,7 @@ bool string_decode(const char *es, char *s) {
                 case '0': // 0xHH case
                     i++;
                     if (i >= len) {
-                        printf("Error: exceed the len\n");
+                        printf("encode error: exceed the len\n");
                         return false;
                     }
                     // printf("es %d : %c\n", i, es[i]);
@@ -92,20 +92,6 @@ bool string_decode(const char *es, char *s) {
                             printf("encode error: Invalid hexadecimal escape sequence\n");
                             return false; // Invalid hexadecimal escape sequence
                         }
-                        // if (value == 0) {
-                        //     printf("Error: \\0x00 appear before the string is closed\n");
-                        //     return false; // Invalid hexadecimal escape sequence
-                        // }
-                        // int value;
-                        // if (sscanf(hex, "%x", &value) != 1) {
-                        //     printf("Error: Invalid hexadecimal escape sequence\n");
-                        //     return false; // Invalid hexadecimal escape sequence
-                        // }
-                        // // printf("value %d\n", (unsigned char)value);
-                        // if ((unsigned char)value==0 && quote) {
-                        //     printf("Error: \\0x00 appear before the string is closed\n");
-                        //     return false; // Invalid hexadecimal escape sequence
-                        // }
                         s[j] = (unsigned char)value;
                         break;
                     } else {

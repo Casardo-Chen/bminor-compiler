@@ -1,16 +1,9 @@
-BMinor Project
+BMinor Compiler
 -------------------------------
 
-This directory contains the starter code for the BMinor compiler.
-Students in CSE 40243 are *required* to use these header files as the basis for your work.
-Trust us, it will get you started on the right track, and make it
-much easier for the instructors to help you with any difficulties.
+This code repo contains the code for the BMinor compiler.
 
-Of course, to complete the project, you will have to add quite a bit
-to what is here.  You are free to add new files, add items to the
-structures, implement new functions, and so forth.  But stick to
-the basic structure that `decl` represents a declaration,
-`expr` represents an expression, and so forth.
+An overview of BMinor language can be found here: [2023 BMinor Language](https://dthain.github.io/compilers-fa23/bminor)
 
 For your sanity and ours, you *must* adhere to the following style:
 - Every function must be prefixed with the name of the structure that it manipulates.

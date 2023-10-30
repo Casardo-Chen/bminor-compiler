@@ -4,6 +4,7 @@
 
 #include "type.h"
 #include <stdio.h>
+#include <string.h>
 
 struct expr;
 
@@ -14,7 +15,7 @@ struct param_list {
 	struct param_list *next;
 };
 
-struct param_list * param_list_create( char *name, struct type *type, struct param_list *next );
+struct param_list * param_list_create( const char *name, struct type *type, struct param_list *next );
 void param_list_print( struct param_list *a );
 
 #endif

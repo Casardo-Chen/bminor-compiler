@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
     int status = EXIT_SUCCESS;
     /* I/O */
     if (argc < 3) {
-        fprintf(stderr, "Usage:  ./bminor [--encode|--scan|--parse] input.bminor\n");
+        fprintf(stderr, "Usage:  ./bminor [--encode|--scan|--parse|--print] input.bminor\n");
         return EXIT_FAILURE;
     }
     yyin = fopen(argv[2], "r");
@@ -24,12 +24,11 @@ int main(int argc, char *argv[]){
     } 
     /* Parser */
     if (strcmp(argv[1],"--parse") == 0 ) {
-        if (!scan()) {
-            yyin = fopen(argv[2], "r");
-            status = parse(); 
-        } else {
-            status = EXIT_FAILURE;
-        }
+        status = parse(); 
+    } 
+    /* Print */
+    if (strcmp(argv[1],"--print") == 0 ) {
+        status = print(); 
     } 
     fclose(yyin);
     return status;

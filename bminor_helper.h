@@ -16,12 +16,14 @@
 extern int yylex();
 extern char *yytext;
 extern FILE *yyin;
+extern struct decl * parser_result;
 
 typedef enum yytokentype token_t;
 
 int    encode();
 int    scan();
 int    parse();
+int    print();
 int    token_to_string( token_t token, char * yytext);
 
 #endif

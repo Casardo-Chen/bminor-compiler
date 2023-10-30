@@ -5,7 +5,7 @@
 # c compilers #
 ###############
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
+CFLAGS = -Wall 
 
 #########
 # files #
@@ -19,6 +19,11 @@ HELPER = bminor_helper
 EXEC = bminor
 TEST = runtest.sh
 
+EXPR = expr
+STMT = stmt
+PARAM = param_list
+DECL = decl
+TYPE = type
 
 ###############
 # Directories #
@@ -29,7 +34,7 @@ TEST_DIR = test
 ###############
 # 	  make    #
 ###############
-$(EXEC): $(MAIN).o $(HELPER).o $(ENCODER).o $(SCANNER).o $(PARSER).o
+$(EXEC): $(MAIN).o $(HELPER).o $(ENCODER).o $(SCANNER).o $(PARSER).o $(EXPR).o $(STMT).o $(PARAM).o $(DECL).o $(TYPE).o
 	$(CC) $(CFLAGS) -o $@ $^ 
 
 # encoder
@@ -37,7 +42,7 @@ $(ENCODER).o: $(ENCODER).c $(ENCODER).h
 	$(CC) $(CFLAGS) -c $<  -o $@
 
 # scanner
-$(SCANNER).c: $(SCANNER).flex
+$(SCANNER).c: $(SCANNER).l
 	flex -o $@ $^
 
 $(SCANNER).o: $(SCANNER).c $(TOKEN).h
@@ -56,6 +61,21 @@ $(HELPER).o: $(HELPER).c $(HELPER).h
 $(MAIN).o: $(MAIN).c $(TOKEN).h
 	$(CC) $(CFLAGS) -c $<  -o $@
 
+# printer
+$(EXPR).o: $(EXPR).c $(EXPR).h 
+	$(CC) $(CFLAGS) -c $<  -o $@
+
+$(STMT).o: $(STMT).c $(STMT).h 
+	$(CC) $(CFLAGS) -c $<  -o $@
+
+$(PARAM).o: $(PARAM).c $(PARAM).h 
+	$(CC) $(CFLAGS) -c $<  -o $@
+
+$(DECL).o: $(DECL).c $(DECL).h 
+	$(CC) $(CFLAGS) -c $<  -o $@
+
+$(TYPE).o: $(TYPE).c $(TYPE).h 
+	$(CC) $(CFLAGS) -c $<  -o $@
 
 # clean
 clean-parser:
@@ -74,6 +94,9 @@ clean-test:
 	rm -rf ./test/encode/bad*.bminor.out
 	rm -rf ./test/scanner/bad*.bminor.out
 	rm -rf ./test/parser/bad*.bminor.out
+	rm -rf ./test/printer/good*.bminor.a.out
+	rm -rf ./test/printer/good*.bminor.b.out
+	rm -rf ./test/printer/good*.bminor.out
 
 clean:
 	rm token.h 

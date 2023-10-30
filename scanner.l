@@ -27,6 +27,7 @@ boolean                             { return TOKEN_BOOLEAN;       }
 char                                { return TOKEN_CHAR;          }
 else                                { return TOKEN_ELSE;          }
 false                               { return TOKEN_FALSE;         }
+float                               { return TOKEN_FLOAT;         }
 for                                 { return TOKEN_FOR;           }
 function                            { return TOKEN_FUNCTION;      }
 if                                  { return TOKEN_IF;            }

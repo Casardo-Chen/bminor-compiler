@@ -25,6 +25,9 @@ int token_to_string (token_t token, char * yytext){
         case TOKEN_FOR:
             printf("FOR %s\n", yytext);
             break;
+        case TOKEN_FLOAT:
+            printf("FLOAT %s\n", yytext);
+            break;
         case TOKEN_FUNCTION:
             printf("FUNCTION %s\n", yytext);
             break;
@@ -212,6 +215,13 @@ int parse(){
 		printf("Parse failed.\n");
 		return EXIT_FAILURE;
 	}
+}
 
+int print(){
+    if(yyparse()==0) {
+		decl_print(parser_result, 0);
+		return EXIT_SUCCESS;
+	}
+    return EXIT_FAILURE;
 }
  
