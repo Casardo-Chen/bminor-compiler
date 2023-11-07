@@ -30,6 +30,10 @@ int main(int argc, char *argv[]){
     if (strcmp(argv[1],"--print") == 0 ) {
         status = print(); 
     } 
+    /* Resolve */
+    if (strcmp(argv[1],"--resolve") == 0 ) {
+        status = resolve(); 
+    } 
     fclose(yyin);
     return status;
 }

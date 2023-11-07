@@ -316,3 +316,34 @@ struct expr * expr_check( struct expr *e, assoc_t assoc) {
 struct expr * expr_wrap( struct expr * e ){
     return expr_create(EXPR_PAREN, e, 0, 8);
 }
+
+void expr_resolve( struct expr *e ){
+    if (!e) return;
+    if (e->kind == EXPR_IDENT){
+        e->symbol = scope_lookup(e->name);
+        if (e->symbol){
+            switch (e->symbol->kind)
+            {
+                case SYMBOL_GLOBAL:
+                    printf("%s resolves to global %d\n", e->symbol->name, e->symbol->which);
+                    break;
+                case SYMBOL_LOCAL:
+                    printf("%s resolves to local %d\n", e->symbol->name, e->symbol->which);
+                    break;
+                case SYMBOL_PARAM:
+                    printf("%s resolves to param %d\n", e->symbol->name, e->symbol->which);
+                    break;
+                default:
+                    printf("resolve error: undefined symbol kind.\n");
+                    exit(1);
+                    break;
+            }
+        } else {
+            printf("resolve error: %s is not defined.\n", e->symbol->name);
+            exit(1);
+        }
+    } else {
+        expr_resolve( e->left );
+        expr_resolve( e->right );
+    }
+}

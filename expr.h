@@ -2,6 +2,7 @@
 #define EXPR_H
 
 #include "symbol.h"
+#include "scope.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,5 +79,6 @@ void expr_print( struct expr *e );
 void print_op( struct expr *e, const char *op);
 struct expr * expr_check( struct expr *e, assoc_t assoc);
 struct expr * expr_wrap( struct expr * e );
+void expr_resolve( struct expr *e );
 
 #endif

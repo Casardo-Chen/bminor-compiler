@@ -120,3 +120,17 @@ struct stmt * stmt_wrap( struct stmt *s ) {
     return s;
 }
 
+void stmt_resolve( struct stmt *s ){
+    if(!s) return;
+    switch (s->kind)
+    {
+    case /* constant-expression */:
+        /* code */
+        break;
+    
+    default:
+        printf("resolve error: Invalid statement kind found.\n");
+        exit(1);
+    }
+}
+
