@@ -1,0 +1,10 @@
+// wrong scope
+doSomething: function void () ={
+    localVar: integer = 10;
+}
+
+main: function integer() ={
+    doSomething();
+    localVar++; 
+    return 0;
+}

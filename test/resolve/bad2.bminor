@@ -1,0 +1,9 @@
+// multiple definition of function
+
+helper: function integer ()= {
+    return 42;
+}
+
+helper: function integer ()= {
+    return 24;
+}

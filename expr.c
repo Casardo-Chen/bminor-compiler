@@ -325,7 +325,7 @@ void expr_resolve( struct expr *e ){
             switch (e->symbol->kind)
             {
                 case SYMBOL_GLOBAL:
-                    printf("%s resolves to global %d\n", e->symbol->name, e->symbol->which);
+                    printf("%s resolves to global %s\n", e->symbol->name, e->symbol->name);
                     break;
                 case SYMBOL_LOCAL:
                     printf("%s resolves to local %d\n", e->symbol->name, e->symbol->which);
@@ -335,15 +335,17 @@ void expr_resolve( struct expr *e ){
                     break;
                 default:
                     printf("resolve error: undefined symbol kind.\n");
-                    exit(1);
+                    resolve_error++;
                     break;
             }
         } else {
-            printf("resolve error: %s is not defined.\n", e->symbol->name);
-            exit(1);
+            printf("resolve error: %s is not defined.\n", e->name);
+            resolve_error++;
         }
     } else {
         expr_resolve( e->left );
         expr_resolve( e->right );
     }
+    
+    return;
 }

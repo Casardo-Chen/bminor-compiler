@@ -30,6 +30,8 @@ struct stmt {
 	int post_newline;
 };
 
+extern int resolve_error;
+
 struct stmt * stmt_create( stmt_t kind, struct decl *decl, struct expr *init_expr, struct expr *expr, struct expr *next_expr, struct stmt *body, struct stmt *else_body, struct stmt *next );
 struct stmt * stmt_wrap( struct stmt *s );
 void stmt_print( struct stmt *s, int indent );

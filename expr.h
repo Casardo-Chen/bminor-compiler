@@ -66,6 +66,8 @@ struct expr {
 	int precedence;
 };
 
+extern int resolve_error;
+
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right, int precedence );
 
 struct expr * expr_create_name( const char *n );

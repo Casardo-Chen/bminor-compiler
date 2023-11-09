@@ -1,0 +1,6 @@
+arr resolves to global arr
+x resolves to global x
+arr resolves to global arr
+x resolves to global x
+z resolves to global z
+str resolves to global str

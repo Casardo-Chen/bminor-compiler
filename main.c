@@ -32,7 +32,9 @@ int main(int argc, char *argv[]){
     } 
     /* Resolve */
     if (strcmp(argv[1],"--resolve") == 0 ) {
-        status = resolve(); 
+        int resolve_error;
+        resolve_error = resolve(); 
+        status = resolve_error ? EXIT_FAILURE : EXIT_SUCCESS;
     } 
     fclose(yyin);
     return status;

@@ -122,15 +122,46 @@ struct stmt * stmt_wrap( struct stmt *s ) {
 
 void stmt_resolve( struct stmt *s ){
     if(!s) return;
-    switch (s->kind)
-    {
-    case /* constant-expression */:
-        /* code */
-        break;
-    
-    default:
-        printf("resolve error: Invalid statement kind found.\n");
-        exit(1);
+    switch (s->kind){
+        case STMT_DECL:
+            decl_resolve(s->decl);
+            break;
+        case STMT_EXPR:
+            expr_resolve(s->expr);
+            break;
+        case STMT_RETURN:
+            expr_resolve(s->expr);
+            break;
+        case STMT_PRINT:
+            expr_resolve(s->expr);
+            break;
+        case STMT_IF_ELSE:
+            expr_resolve(s->expr);
+            scope_enter();
+            stmt_resolve(s->body);
+            scope_exit();
+            scope_enter();
+            stmt_resolve(s->else_body);
+            scope_exit();
+            break;
+        case STMT_FOR:
+            expr_resolve(s->init_expr);
+            expr_resolve(s->expr);
+            expr_resolve(s->next_expr);
+            scope_enter();
+            stmt_resolve(s->body);
+            scope_exit();
+            break;
+        case STMT_BR:
+            scope_enter();
+            stmt_resolve(s->body);
+            scope_exit();
+            break;
+        default:
+            printf("resolve error: undefined statement kind.\n");
+            resolve_error++;
+            exit(1);
     }
+    stmt_resolve(s->next);
 }
 

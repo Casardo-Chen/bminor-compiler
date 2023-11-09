@@ -14,11 +14,37 @@ struct param_list * param_list_create( const char *name, struct type *type, stru
     return p;
 }
 
-void param_list_print(struct param_list *a){
-    if (!a) return;
-    printf("%s: ", a->name);
-    type_print(a->type);
-    if (!a->next) return;
+void param_list_print(struct param_list *p){
+    if (!p) return;
+    printf("%s: ", p->name);
+    type_print(p->type);
+    if (!p->next) return;
     printf(", ");
-    param_list_print(a->next);
+    param_list_print(p->next);
+}
+
+/*
+    enter a new variable declaration for each parameter of a
+    function, so that those definitions are available to the code of a function
+*/
+void param_list_resolve(struct param_list *p){
+    if(!p) return;
+    p->symbol = symbol_create(SYMBOL_PARAM, p->type, p->name);
+    if (!scope_lookup_current(p->name)){
+        scope_bind(p->name, p->symbol);
+    } else {
+        printf("resolve error: duplicate %s is invalid.\n", p->name);
+        resolve_error++;
+    }
+    param_list_resolve(p->next);
+}
+
+int param_list_eq(struct param_list *a, struct param_list *b) {
+    // recursively check if all params are the same
+    if ((!a && b) || (a && !b)) return 0;
+    else if (!a && !b) return 1; 
+    if (type_eq(a->type, b->type)) {
+        return param_list_eq(a->next, b->next);
+    }
+    return 0;
 }

@@ -1,0 +1,10 @@
+// conflicting declaration
+x: integer;
+y: boolean;
+z: void;
+s: char;
+t: string;
+a: integer = 500000;
+a: char = "this is a test";
+z: float = 3E2;
+b: boolean = true;

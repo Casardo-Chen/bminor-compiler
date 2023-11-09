@@ -1,0 +1,3 @@
+Input String    : "hello \0xGG world"
+encode error: Invalid hexadecimal escape sequence
+Invalid String: "hello \0xGG world"

@@ -1,0 +1,8 @@
+// redefinition
+
+main: function void () = {
+    x: integer = 5;
+    x: integer =10;
+    return 0;
+
+}

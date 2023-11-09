@@ -25,6 +25,10 @@ PARAM = param_list
 DECL = decl
 TYPE = type
 
+SYM = symbol
+SCOPE = scope
+HT = hash_table
+
 ###############
 # Directories #
 ###############
@@ -34,7 +38,7 @@ TEST_DIR = test
 ###############
 # 	  make    #
 ###############
-$(EXEC): $(MAIN).o $(HELPER).o $(ENCODER).o $(SCANNER).o $(PARSER).o $(EXPR).o $(STMT).o $(PARAM).o $(DECL).o $(TYPE).o
+$(EXEC): $(MAIN).o $(HELPER).o $(ENCODER).o $(SCANNER).o $(PARSER).o $(EXPR).o $(STMT).o $(PARAM).o $(DECL).o $(TYPE).o $(SYM).o $(SCOPE).o $(HT).o
 	$(CC) $(CFLAGS) -o $@ $^ 
 
 # encoder
@@ -77,6 +81,16 @@ $(DECL).o: $(DECL).c $(DECL).h
 $(TYPE).o: $(TYPE).c $(TYPE).h 
 	$(CC) $(CFLAGS) -c $<  -o $@
 
+# resolve
+$(SYM).o: $(SYM).c $(SYM).h
+	$(CC) $(CFLAGS) -c $<  -o $@
+
+$(SCOPE).o: $(SCOPE).c $(SCOPE).h
+	$(CC) $(CFLAGS) -c $<  -o $@
+
+$(HT).o: $(HT).c $(HT).h
+	$(CC) $(CFLAGS) -c $<  -o $@
+
 # clean
 clean-parser:
 	rm token.h parser.c scanner.c
@@ -91,12 +105,15 @@ clean-test:
 	rm -rf ./test/encode/good*.bminor.out
 	rm -rf ./test/scanner/good*.bminor.out
 	rm -rf ./test/parser/good*.bminor.out
-	rm -rf ./test/encode/bad*.bminor.out
-	rm -rf ./test/scanner/bad*.bminor.out
-	rm -rf ./test/parser/bad*.bminor.out
 	rm -rf ./test/printer/good*.bminor.a.out
 	rm -rf ./test/printer/good*.bminor.b.out
 	rm -rf ./test/printer/good*.bminor.out
+	rm -rf ./test/resolve/good*.bminor.out
+	rm -rf ./test/encode/bad*.bminor.out
+	rm -rf ./test/scanner/bad*.bminor.out
+	rm -rf ./test/parser/bad*.bminor.out
+	rm -rf ./test/resolve/bad*.bminor.out
+	
 
 clean:
 	rm token.h 

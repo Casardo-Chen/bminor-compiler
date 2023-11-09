@@ -1,0 +1,5 @@
+foo: function void();
+foo: function void() = {}
+
+bar: integer;
+bar: function void(x: integer);

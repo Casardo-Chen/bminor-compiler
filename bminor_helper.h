@@ -7,6 +7,7 @@
 #include "stmt.h"
 #include "type.h"
 #include "symbol.h"
+#include "scope.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,7 @@ extern int yylex();
 extern char *yytext;
 extern FILE *yyin;
 extern struct decl * parser_result;
+extern int resolve_error;
 
 typedef enum yytokentype token_t;
 

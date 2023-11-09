@@ -224,4 +224,16 @@ int print(){
 	}
     return EXIT_FAILURE;
 }
+
+int resolve(){
+    if(yyparse()==0) {
+        scope_enter();
+		decl_resolve(parser_result);
+        if (resolve_error != 0 ){
+            printf("%d resolve errors found.\n", resolve_error);
+        }
+		return resolve_error;
+	}
+    return EXIT_FAILURE;
+}
  

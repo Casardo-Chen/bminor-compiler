@@ -1,0 +1,4 @@
+foo defines prototype global foo.
+bar defines prototype global bar.
+resolve error: prototype of bar after the definition of bar global 1.
+1 resolve errors found.

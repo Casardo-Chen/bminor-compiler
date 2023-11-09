@@ -1,0 +1,5 @@
+helper: function integer (x: integer);
+
+helper: function integer ()= {
+    return 24;
+}

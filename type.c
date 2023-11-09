@@ -57,3 +57,16 @@ void type_print( struct type *t ){
     
 
 }
+
+int type_eq(struct type *a, struct type *b){
+    if (a->kind == b->kind) {
+        if(a->kind == TYPE_ARRAY && type_eq(a->subtype, b->subtype)){
+            return a->val->literal_value == b->val->literal_value;
+        } 
+        if(a->kind == TYPE_FUNCTION && type_eq(a->subtype, b->subtype)){
+            return param_list_eq(a->params, b->params);
+        }
+        return 1;
+    }
+    return 0;
+}

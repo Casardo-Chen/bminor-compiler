@@ -1,0 +1,3 @@
+resolve error: duplicate definitions of a in the same scope is invalid.
+resolve error: duplicate definitions of z in the same scope is invalid.
+2 resolve errors found.
