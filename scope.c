@@ -48,7 +48,8 @@ void scope_bind( const char *name, struct symbol *s ){
     s->which = ht_stack_head->var_count;
     ht_stack_head->var_count ++;
     if (!hash_table_insert(ht_stack_head->ht, name, s)) {
-        fprintf(stdout, "resolve error: failed to insert a duplicate entry.\n");
+        printf("resolve error: failed to insert a duplicate entry.\n");
+        resolve_error++;
         exit(1);
     }
 
