@@ -230,10 +230,21 @@ int resolve(){
         scope_enter();
 		decl_resolve(parser_result);
         if (resolve_error != 0 ){
-            printf("%d resolve errors found.\n", resolve_error);
+            printf("%d resolve error(s) found.\n", resolve_error);
         }
 		return resolve_error;
 	}
+    return EXIT_FAILURE;
+}
+
+int typecheck(){
+    if (!resolve()) {
+        decl_typecheck(parser_result);
+        if (type_error != 0 ){
+            printf("%d type error(s) found.\n", type_error);
+        }
+        return type_error; 
+    }
     return EXIT_FAILURE;
 }
  

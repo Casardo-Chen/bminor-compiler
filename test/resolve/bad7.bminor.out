@@ -1,0 +1,3 @@
+foo defines prototype global foo.
+resolve error: different prototypes of bar is invalid.
+1 resolve error(s) found.

@@ -2,6 +2,7 @@
 
 struct ht_list *ht_stack_head = NULL; 
 int resolve_error = 0;                    // resolve error counter
+int type_error = 0;                       // type check error counter 
 
 // push a new (empty) hash table on to the stack
 void scope_enter(){

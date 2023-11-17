@@ -19,6 +19,7 @@ extern char *yytext;
 extern FILE *yyin;
 extern struct decl * parser_result;
 extern int resolve_error;
+extern int type_error;
 
 typedef enum yytokentype token_t;
 
@@ -27,6 +28,7 @@ int    scan();
 int    parse();
 int    print();
 int    resolve();
+int    typecheck();
 int    token_to_string( token_t token, char * yytext);
 
 #endif

@@ -32,9 +32,15 @@ int main(int argc, char *argv[]){
     } 
     /* Resolve */
     if (strcmp(argv[1],"--resolve") == 0 ) {
-        int resolve_error;
-        resolve_error = resolve(); 
-        status = resolve_error ? EXIT_FAILURE : EXIT_SUCCESS;
+        int resolve_err;
+        resolve_err = resolve(); 
+        status = resolve_err ? EXIT_FAILURE : EXIT_SUCCESS;
+    }
+     /* Typecheck */
+    if (strcmp(argv[1],"--typecheck") == 0 ) {
+        int type_err;
+        type_err = typecheck(); 
+        status = type_err ? EXIT_FAILURE : EXIT_SUCCESS;
     } 
     fclose(yyin);
     return status;

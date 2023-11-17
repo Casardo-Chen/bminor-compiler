@@ -48,3 +48,24 @@ int param_list_eq(struct param_list *a, struct param_list *b) {
     }
     return 0;
 }
+
+struct param_list* param_list_copy(struct param_list *p) {
+    if (!p) return NULL;
+    return param_list_create(p->name, type_copy(p->type), param_list_copy(p->next));
+}
+
+void param_list_delete(struct param_list *p){
+    if (!p) return;
+    type_delete(p->type);
+    param_list_delete(p->next);
+    free(p);
+}
+
+void param_list_valid(struct param_list *p) {
+    if (!p) return;
+    if (p->type->kind == TYPE_FUNCTION) {
+        printf("type error: parameters cannot contain type function.\n");
+        type_error++;
+    }
+    param_list_valid(p->next);
+}

@@ -1,0 +1,5 @@
+x resolves to param 0
+y resolves to param 1
+x resolves to local 2
+x resolves to local 3
+y resolves to local 4

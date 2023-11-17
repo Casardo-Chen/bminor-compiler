@@ -1,0 +1,9 @@
+printHello: function void(x: integer) = {
+	print "hello\n";
+}
+
+main: function void(x: integer, y:float) = {
+    x: integer = x;
+	y = 3.14;
+	printHello(x);
+}

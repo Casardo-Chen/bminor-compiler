@@ -1,0 +1,13 @@
+x: integer;
+y: boolean;
+z: void;
+s: char;
+t: string;
+a: integer = 500000;
+a: char = "this is a test";
+z: float = 8.34;
+z: float = 300;
+b: boolean = true;
+b: boolean = false;
+c: char = 'a';
+e: integer = something;

@@ -1,0 +1,17 @@
+IDENTIFIER character
+COLON :
+CHAR char
+ASSIGN =
+CHARACTER_LITERAL c
+SEMICOLON ;
+IDENTIFIER character
+COLON :
+CHAR char
+ASSIGN =
+CHARACTER_LITERAL 
+
+SEMICOLON ;
+IDENTIFIER character
+ASSIGN =
+encode error: Invalid escape sequence
+scan error: "\6" is not a valid character

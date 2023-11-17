@@ -1,0 +1,3 @@
+Input String    : "To\tBe\tOr\tNot\tTo\tBe" ddd
+encode error: Unescaped quote in the middle is invalid
+Invalid String: "To\tBe\tOr\tNot\tTo\tBe" ddd

@@ -1,0 +1,7 @@
+x resolves to local 0
+x resolves to local 0
+x resolves to local 0
+x resolves to local 0
+type error: cannot compare string ("5") to integer (4)
+type error: cannot assign string ("goodbye") to integer (x)
+3 type error(s) found.

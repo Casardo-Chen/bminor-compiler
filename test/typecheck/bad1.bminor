@@ -1,0 +1,12 @@
+main: function void() = {
+    x:integer = 5;
+    if( 4 < 5 )
+        if( 10 < 20 )
+            for(x = 0; x < 5; x++) 
+                if( 4 < "5" )          // Error: Comparing integer with string
+                    print "helloo\n";
+                else
+                    print 5;           // Error: 'print' expects a string, not an integer
+        else
+            x = "goodbye";             // Error: Assigning a string to an integer variable
+}

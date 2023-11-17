@@ -1,0 +1,2 @@
+c: char = '\t';
+c: char = '\r';

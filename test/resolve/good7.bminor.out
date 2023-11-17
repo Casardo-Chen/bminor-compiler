@@ -1,0 +1,8 @@
+arr resolves to global arr
+x resolves to local 0
+y resolves to local 1
+arr resolves to global arr
+y resolves to local 1
+x resolves to local 0
+arr resolves to global arr
+x resolves to local 0

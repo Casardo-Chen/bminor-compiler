@@ -1,0 +1,3 @@
+Input String    : "this'isgeiuhfduhvehuopwe\vijhuwf-9243u8\\\"
+encode error: Unclosed double quote
+Invalid String: "this'isgeiuhfduhvehuopwe\vijhuwf-9243u8\\\"

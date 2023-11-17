@@ -134,3 +134,57 @@ void decl_resolve( struct decl *d ){
 
     decl_resolve(d->next);
 }
+
+void decl_typecheck( struct decl *d ){
+    if (!d) return;
+    type_valid(d->type, 0);
+    /* expression */
+    if(d->value) {
+        struct type *t;
+        t = expr_typecheck(d->value);
+        // check if the declaration is a function or void, which should not have values
+        if(t->kind == TYPE_VOID){
+            printf("type error: invalid expression type of void in assignment.\n");
+            type_error++;
+        }
+        if(t->kind == TYPE_FUNCTION){
+            printf("type error: invalid expression type of function in assignment.\n");
+            type_error++;
+        }
+        // Non-constant initializers for global variables.
+        if(d->symbol->kind == SYMBOL_GLOBAL){
+            if (!expr_const(d->value)){
+                printf("type error: non-constant initializers for global variables is invalid.\n");
+                type_error++;
+            }
+        } else {
+            if (t->kind == TYPE_ARRAY && d->value->kind == EXPR_BR) {
+                printf("type error: array initializers in non-global scope (");
+                expr_print(d->value);
+                printf(") is invalid\n");
+                type_error++;
+            } 
+            if (t->kind == TYPE_FUNCTION) {
+                printf("type error: function declaration in non-global scope (");
+                expr_print(d->value);
+                printf(") is invalid\n");
+                type_error++;
+            }
+        }
+        // check if the type matches the one in declaration
+        if(!type_eq(t,d->symbol->type)) {
+            printf("type error: declaration of ");
+            type_print(d->symbol->type);
+            printf(" for %s does not match expression type ", d->name);
+            type_print(t);
+            printf("\n");
+            type_error++;
+        }
+        // type_delete(t);
+    }
+    /* function */
+    if(d->code) {
+        stmt_typecheck(d->code, d);
+    }
+    decl_typecheck(d->next);
+}

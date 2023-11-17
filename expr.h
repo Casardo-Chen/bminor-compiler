@@ -82,5 +82,10 @@ void print_op( struct expr *e, const char *op);
 struct expr * expr_check( struct expr *e, assoc_t assoc);
 struct expr * expr_wrap( struct expr * e );
 void expr_resolve( struct expr *e );
+struct expr * expr_copy(struct expr *e );
+void expr_delete( struct expr *e);
+struct type * expr_typecheck( struct expr *e );
+void expr_error_print( struct expr* e, struct type* lt, struct type* rt);
+int expr_const(struct expr *e);
 
 #endif

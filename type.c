@@ -50,7 +50,7 @@ void type_print( struct type *t ){
             printf(" )");
             break;
         default:
-            printf("print error: invalid type kind found.\n");
+            printf("invalid type kind\n");
             exit(1);
             break;
     }
@@ -69,4 +69,53 @@ int type_eq(struct type *a, struct type *b){
         return 1;
     }
     return 0;
+}
+
+struct type * type_copy(struct type *t){
+    if (!t) return NULL;
+    return type_create(t->kind, type_copy(t->subtype), param_list_copy(t->params), expr_copy(t->val));
+}
+
+void type_delete(struct type *t){
+    if (!t) return;
+    type_delete(t->subtype);
+    param_list_delete(t->params);
+    expr_delete(t->val);
+    free(t);
+}
+
+void type_valid(struct type *t, int arr_internal) {
+    if (!t) return;
+    switch (t->kind) {
+        case TYPE_BOOLEAN:
+        case TYPE_INTEGER:
+        case TYPE_CHARACTER:
+        case TYPE_FLOAT:
+        case TYPE_STRING:
+        case TYPE_VOID:
+            return;
+        case TYPE_ARRAY:
+            if (t->val->kind != EXPR_INT_LIT) {
+                printf("type error: array size (");
+                expr_print(t->val);
+                printf(") is not an integer literal\n");
+                type_error++;
+            }
+            type_valid(t->subtype, 1); // 1: if we are checking if it is an array of function
+            return;
+        case TYPE_FUNCTION:
+            if (arr_internal) {
+                printf("type error: array cannot contain type function\n");
+                type_error++;
+            } else {
+                if (t->subtype->kind == TYPE_FUNCTION) {
+                    printf("type error: function cannot be the return value of a function\n");
+                    type_error++;
+                }
+                param_list_valid(t->params);
+            }
+            return;
+        default:
+            return;
+    }
 }

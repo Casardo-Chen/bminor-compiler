@@ -109,10 +109,13 @@ clean-test:
 	rm -rf ./test/printer/good*.bminor.b.out
 	rm -rf ./test/printer/good*.bminor.out
 	rm -rf ./test/resolve/good*.bminor.out
+	rm -rf ./test/typecheck/good*.bminor.out
+
 	rm -rf ./test/encode/bad*.bminor.out
 	rm -rf ./test/scanner/bad*.bminor.out
 	rm -rf ./test/parser/bad*.bminor.out
 	rm -rf ./test/resolve/bad*.bminor.out
+	rm -rf ./test/typecheck/bad*.bminor.out
 	
 
 clean:

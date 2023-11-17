@@ -165,3 +165,94 @@ void stmt_resolve( struct stmt *s ){
     stmt_resolve(s->next);
 }
 
+
+void stmt_typecheck( struct stmt *s, struct decl *d ){
+    if (!s) return;
+    struct type *t;
+    switch(s->kind) {
+        case STMT_EXPR:
+            expr_typecheck(s->expr);
+            break;
+        case STMT_DECL:
+            decl_typecheck(s->decl);
+            break;
+        case STMT_IF_ELSE:
+            t = expr_typecheck(s->expr);
+            if(t->kind!=TYPE_BOOLEAN) {
+                printf("type error: condition in the if statement is ");
+                type_print(t);
+                printf(" (");
+                expr_print(s->expr);
+                printf("), which has to be boolean.\n");
+                type_error++;
+            } 
+            // type_delete(t);
+            stmt_typecheck(s->body, d);
+            stmt_typecheck(s->else_body, d);
+            break;
+        case STMT_RETURN:{
+            struct type *func_type = d->type->subtype;
+            t = expr_typecheck(s->expr);
+            if (!t) break;
+            if (!type_eq(t, func_type)) {
+                printf("type error: cannot return a ");
+                type_print(t);
+                printf(" (");
+                expr_print(s->expr);
+                printf(") in a function (%s) that returns", d->name);
+                type_print(func_type);
+                printf("\n");
+                type_error++;
+            }
+            // type_delete(t);
+            // type_delete(func_type);
+            break;
+        }
+        case STMT_PRINT:
+            expr_typecheck(s->expr);
+            break;
+        case STMT_FOR:{
+            struct type *init_type = expr_typecheck(s->init_expr);
+            if (init_type && init_type->kind != TYPE_INTEGER){
+                printf("type error: the first condition in the for loop statement is ");
+                type_print(init_type);
+                printf(" (");
+                expr_print(s->init_expr);
+                printf("), which has to be an integer.\n");
+                type_error++;
+            }
+            struct type *mid_type = expr_typecheck(s->expr);
+            if (mid_type && mid_type->kind != TYPE_BOOLEAN){
+                printf("type error: the second condition in the for loop statement is ");
+                type_print(mid_type);
+                printf(" (");
+                expr_print(s->expr);
+                printf("), which has to be a boolean.\n");
+                type_error++;
+            }
+            struct type *next_type = expr_typecheck(s->next_expr);
+            if (next_type && next_type->kind != TYPE_INTEGER){
+                printf("type error: the third condition in the for loop statement is ");
+                type_print(next_type);
+                printf(" (");
+                expr_print(s->next_expr);
+                printf("), which has to be an integer.\n");
+                type_error++;
+            }
+            // type_delete(init_type);
+            // type_delete(mid_type);
+            // type_delete(next_type);
+            stmt_typecheck(s->body, d);
+            break;
+            }     
+        case STMT_BR:
+            stmt_typecheck(s->body, d);
+            break;
+        default:
+            printf("type error: undefined statement kind.\n");
+            type_error++;
+            exit(1);
+    }
+    stmt_typecheck(s->next, d);
+}
+
