@@ -1,3 +1,0 @@
-doSomething resolves to global doSomething
-resolve error: localVar is not defined.
-1 resolve error(s) found.

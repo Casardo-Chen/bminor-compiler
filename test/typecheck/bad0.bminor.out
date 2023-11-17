@@ -1,4 +1,0 @@
-y resolves to global y
-type error: declaration of float for y does not match expression type integer
-type error: cannot multiply integer (10) to float (y)
-type error: cannot add integer (15) to invalid type kind
