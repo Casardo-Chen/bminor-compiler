@@ -4,4 +4,4 @@ main: function integer ()=
 	return x;
 }
 
-x:array [3] integer = {1, "hello"};
+x:array [3] integer = {1, "hello",main};
