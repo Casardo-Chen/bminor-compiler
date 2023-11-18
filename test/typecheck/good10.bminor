@@ -1,0 +1,8 @@
+usleep: function void ( usecs: integer );
+
+main: function integer () =
+{
+    precision: integer = 100;
+    deltat: integer = 100;
+    usleep( precision - precision + deltat);
+}

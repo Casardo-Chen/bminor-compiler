@@ -4,5 +4,5 @@ printHello: function integer(x: integer) = {
 }
 
 main: function void(x: integer, y:float) = {
-	x = printHello(x);
+	x = printHello(y); // wrong type of parameter
 }

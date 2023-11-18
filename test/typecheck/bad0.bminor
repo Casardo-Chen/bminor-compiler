@@ -1,7 +1,7 @@
 x: integer = 5;
-y: float = 10;
+y: float = 10.0;
 
 main: function void ()=
 {
-	x: integer = y * 10 + 15 - 4;
+ x: integer = y * 10 + 15 - 4;
 }

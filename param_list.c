@@ -39,6 +39,10 @@ void param_list_resolve(struct param_list *p){
     param_list_resolve(p->next);
 }
 
+/*
+make comparision between two types
+@return 1 if same return 0 if different
+*/
 int param_list_eq(struct param_list *a, struct param_list *b) {
     // recursively check if all params are the same
     if ((!a && b) || (a && !b)) return 0;
@@ -50,7 +54,7 @@ int param_list_eq(struct param_list *a, struct param_list *b) {
 }
 
 struct param_list* param_list_copy(struct param_list *p) {
-    if (!p) return NULL;
+    if (!p) return 0;
     return param_list_create(p->name, type_copy(p->type), param_list_copy(p->next));
 }
 

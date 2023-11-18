@@ -106,7 +106,7 @@ expr_opt  : expr                                { $$ = $1; }
           ;
 
 expr_list : expr TOKEN_COMMA expr_list          { $$ = expr_create(EXPR_ARG, $1, $3,8); }
-          | expr                                { $$ = $1; }
+          | expr                                { $$ = expr_create(EXPR_ARG, $1, 0, 8); }
           ;
 
 expr_opt_list   : expr_list                     { $$ = $1; }

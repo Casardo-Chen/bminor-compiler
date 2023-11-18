@@ -351,8 +351,23 @@ void expr_resolve( struct expr *e ){
 }
 
 struct expr* expr_copy(struct expr *e){
-    if(!e) return NULL;
-    return expr_create( e->kind, expr_copy(e->left), expr_copy(e->right), e->precedence );
+    if(!e) return 0;
+    switch (e->kind) {
+        case EXPR_IDENT:
+            return expr_create_name(e->name);
+        case EXPR_BOOL_LIT:
+            return expr_create_boolean_literal(e->literal_value);
+        case EXPR_CHAR_LIT:
+            return expr_create_char_literal(e->literal_value);
+        case EXPR_INT_LIT:
+            return expr_create_integer_literal(e->literal_value);
+        case EXPR_STR_LIT:
+            return expr_create_string_literal(e->string_literal);
+        case EXPR_FLOAT_LIT:
+            return expr_create_float_literal(e->string_literal);
+        default:
+            return expr_create(e->kind, expr_copy(e->left), expr_copy(e->right), e->precedence);
+    }
 }
 
 void expr_delete( struct expr *e){
@@ -374,7 +389,7 @@ struct type* expr_typecheck(struct expr* e){
         case EXPR_MOD:
         case EXPR_DIV:
         case EXPR_EXP:
-            // integer
+            // integer & float
             if (type_eq(lt,rt)){
                 if(lt->kind == TYPE_INTEGER){  
                     t = type_create(TYPE_INTEGER, 0, 0, 0);
@@ -382,11 +397,11 @@ struct type* expr_typecheck(struct expr* e){
                     t = type_create(TYPE_FLOAT, 0, 0, 0);
                 } else {
                     expr_error_print(e, lt, rt);
-                    t = type_create(TYPE_ERROR, 0, 0, 0);
+                    t = type_create(TYPE_INTEGER, 0, 0, 0);
                 }
             } else {
                 expr_error_print(e, lt, rt); 
-                t = type_create(TYPE_ERROR, 0, 0, 0);
+                t = type_create(TYPE_INTEGER, 0, 0, 0);
             } 
             break;
         case EXPR_BOOL_LIT:
@@ -422,12 +437,13 @@ struct type* expr_typecheck(struct expr* e){
             t = type_create(TYPE_BOOLEAN, 0, 0, 0);
             break;
         case EXPR_NEG:
-            if (lt->kind != TYPE_INTEGER) {
-                expr_error_print(e, lt, NULL);
+            if(lt->kind == TYPE_INTEGER){  
                 t = type_create(TYPE_INTEGER, 0, 0, 0);
-            } else if (lt->kind != TYPE_FLOAT){
-                expr_error_print(e, lt, NULL);
+            } else if (lt->kind == TYPE_FLOAT){
                 t = type_create(TYPE_FLOAT, 0, 0, 0);
+            } else {
+                expr_error_print(e, lt, rt);
+                t = type_create(TYPE_INTEGER, 0, 0, 0);
             }
             break;
         case EXPR_NOT:
@@ -463,38 +479,40 @@ struct type* expr_typecheck(struct expr* e){
             break;
         case EXPR_CALL:
             // E.g. writechar(a,b)
-            if (lt->kind == TYPE_FUNCTION){
-                struct expr * r = e->right;         // a,b...
-                struct param_list * p = lt->params; // definition of the function
-                while (r || p) {
-                    if ((!r && p) || (r && !p)) {
-                        printf("type error: number of arguments for function call %s doesn't match the number of parameters declared in definition.\n", e->left->name);
-                        type_error++;
-                        break;
-                    }
-                    struct type * a = expr_typecheck(r->left); // type of param
+            if (lt->kind == TYPE_FUNCTION) {
+                struct expr * arg_fc = e->right;         // a,b...
+                struct param_list * arg_p = lt->params; // definition of the function
+                while (arg_fc && arg_p) {
+                    struct type * a = expr_typecheck(arg_fc); // type of param
                     if (a->kind == TYPE_FUNCTION || a->kind == TYPE_VOID) {
                         printf("type error: function argument cannot be ");
                         type_print(a);
                         printf(" (");
-                        expr_print(r->left);
+                        expr_print(arg_fc->left);
                         printf(")\n");
                         type_error++;
                     }
-                    if (!type_eq(p->type, a)) {
-                        printf("type error: found type ");
+                    if (!type_eq(arg_p->type, a)) {
+                        printf("type error: the type of argument %s of function %s is ", arg_p->name, e->left->name);
                         type_print(a);
                         printf(" (");
-                        expr_print(r->left);
-                        printf(") in function %s ", e->left->name);
-                        printf(", which should be ");
-                        type_print(p->type);
+                        expr_print(arg_fc->left);
+                        printf("), which should be ");
+                        type_print(arg_p->type);
                         printf("\n");
                         type_error++;
                     }
-                    // type_delete(a);
-                    p = p->next;
-                    r = r->right;
+                    type_delete(a);
+                    arg_p = arg_p->next;
+                    arg_fc = arg_fc->right;
+                }
+                if (arg_p){
+                    printf("type error: too few arguments for function call (%s) as opposed to the parameters declared in definition.\n", e->left->name);
+                    type_error++;
+                } 
+                if (arg_fc) {
+                    printf("type error: too many arguments for function call (%s) as opposed to the parameters declared in definition.\n", e->left->name);
+                    type_error++;
                 }
                 t = type_copy(lt->subtype);
             } else {
@@ -532,12 +550,12 @@ struct type* expr_typecheck(struct expr* e){
         case EXPR_BR: // {...}
             if (e->left->kind == EXPR_ARG) {
                 int counter = 0;
-                struct expr *curr = e->left; // current node
                 struct type *curr_type = NULL;
-                while (curr) {
-                    struct type *a = expr_typecheck(e->left);
-                    if (!curr_type) curr_type = a;
-                    // type inside an array should be consistent
+                for (struct expr *curr = e->left; curr; curr = curr->right) {
+                    struct type *a = expr_typecheck(curr);
+                    if (!curr_type) curr_type = type_copy(a);
+                    // fprintf(stderr,"curr type:%d\n",curr_type->kind);
+                    // fprintf(stderr,"a:%d\n",a->kind);
                     if (!type_eq(curr_type, a)) {
                         printf("type error: inconsistent types in the array: ");
                         type_print(a);
@@ -555,9 +573,8 @@ struct type* expr_typecheck(struct expr* e){
                         printf(")\n");
                         type_error++;
                     }
-                    // if (counter > 0) type_delete(a);
+                    if (counter > 0) type_delete(a);
                     counter++;
-                    curr = curr->right;
                 }
                 t = type_create(TYPE_ARRAY, curr_type, NULL, expr_create_integer_literal(counter));
                 // {},{},{}
@@ -575,7 +592,7 @@ struct type* expr_typecheck(struct expr* e){
                             printf(") are inconsistent\n");
                             type_error++;
                         }
-                        // type_delete(right);
+                        type_delete(right);
                         curr = curr->right;
                         counter += 1;
                     }
@@ -598,7 +615,7 @@ struct type* expr_typecheck(struct expr* e){
                             printf(") are inconsistent\n");
                             type_error++;
                         }
-                        // type_delete(right);
+                        type_delete(right);
                         curr = curr->right;
                         counter += 1;
                     }
@@ -627,8 +644,8 @@ struct type* expr_typecheck(struct expr* e){
             break;
     }
     
-    // type_delete(lt);
-    // type_delete(rt);
+    type_delete(lt);
+    type_delete(rt);
     return t;
 }
 

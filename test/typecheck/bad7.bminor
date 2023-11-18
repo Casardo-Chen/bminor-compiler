@@ -1,0 +1,8 @@
+/* Type of return statement must match return type of function. */
+
+x:array [5] integer = {1,2,3,4,5};
+main: function array [] integer ()=
+{
+
+	return x;
+}

@@ -1,0 +1,8 @@
+printHello: function integer(x: integer, y:float) = {
+	print "hello\n";
+	return x;
+}
+
+main: function void(x: integer, y:float) = {
+	x = printHello(x); // wrong number of arguments
+}
