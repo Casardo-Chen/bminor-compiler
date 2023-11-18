@@ -552,11 +552,8 @@ struct type* expr_typecheck(struct expr* e){
                 int counter = 0;
                 struct type *curr_type = NULL;
                 for (struct expr *curr = e->left; curr; curr = curr->right) {
-                    // fprintf(stderr,"expr curr:%d\n",curr->kind);
                     struct type *a = expr_typecheck(curr->left);
                     if (!curr_type) curr_type = type_copy(a);
-                    // fprintf(stderr,"curr type:%d\n",curr_type->kind);
-                    // fprintf(stderr,"a:%d\n",a->kind);
                     if (!type_eq(curr_type, a)) {
                         printf("type error: inconsistent types in the array: ");
                         type_print(a);
