@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "decl.h"
-#include "expr.h"
-#include "param_list.h"
-#include "stmt.h"
-#include "type.h"
-#include "symbol.h"
+#include "../include/decl.h"
+#include "../include/expr.h"
+#include "../include/param_list.h"
+#include "../include/stmt.h"
+#include "../include/type.h"
+#include "../include/symbol.h"
 
 extern char *yytext;
 extern int yylex();

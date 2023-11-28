@@ -2,8 +2,8 @@
 %option nounput
 
 %{
-#include "token.h"
-#include "bminor_helper.h"
+#include "../include/token.h"
+#include "../include/bminor_helper.h"
 #include <stdbool.h>
 
 token_t check_string(char *yytext);

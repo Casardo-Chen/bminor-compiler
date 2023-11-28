@@ -1,11 +1,11 @@
-# Author: Meng Chen
-# Date: 10/10/2023
+# @ Author: Meng Chen
+# @ Date: 10/10/2023
 
 ###############
 # c compilers #
 ###############
-CC = gcc
-CFLAGS = -Wall 
+CC = gcc 
+CFLAGS = -Wall -I$(INCLUDE_DIR)
 
 #########
 # files #
@@ -33,73 +33,55 @@ HT = hash_table
 # Directories #
 ###############
 TEST_DIR = test
+BIN_DIR = bin
+SRC_DIR = src
+INCLUDE_DIR = include
 
 
 ###############
 # 	  make    #
 ###############
-$(EXEC): $(MAIN).o $(HELPER).o $(ENCODER).o $(SCANNER).o $(PARSER).o $(EXPR).o $(STMT).o $(PARAM).o $(DECL).o $(TYPE).o $(SYM).o $(SCOPE).o $(HT).o
+OBJECTS = $(BIN_DIR)/$(MAIN).o $(BIN_DIR)/$(HELPER).o $(BIN_DIR)/$(ENCODER).o $(BIN_DIR)/$(SCANNER).o $(BIN_DIR)/$(PARSER).o $(BIN_DIR)/$(EXPR).o $(BIN_DIR)/$(STMT).o $(BIN_DIR)/$(PARAM).o $(BIN_DIR)/$(DECL).o $(BIN_DIR)/$(TYPE).o $(BIN_DIR)/$(SYM).o $(BIN_DIR)/$(SCOPE).o $(BIN_DIR)/$(HT).o
+
+$(BIN_DIR)/$(EXEC): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ 
 
-# encoder
-$(ENCODER).o: $(ENCODER).c $(ENCODER).h
+$(BIN_DIR)/$(MAIN).o: $(SRC_DIR)/$(MAIN).c $(INCLUDE_DIR)/$(TOKEN).h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# bin
+$(BIN_DIR)/%.o: $(SRC_DIR)/%.c $(INCLUDE_DIR)/*.h
 	$(CC) $(CFLAGS) -c $<  -o $@
 
 # scanner
-$(SCANNER).c: $(SCANNER).l
+$(SRC_DIR)/$(SCANNER).c: $(SRC_DIR)/$(SCANNER).l
 	flex -o $@ $^
 
-$(SCANNER).o: $(SCANNER).c $(TOKEN).h
-	$(CC) -c $<  -o $@
+$(BIN_DIR)/$(SCANNER).o: $(SRC_DIR)/$(SCANNER).c $(INCLUDE_DIR)/$(TOKEN).h
+	$(CC) -I$(INCLUDE_DIR) -c $<  -o $@
 
 # parser
-$(PARSER).c $(TOKEN).h: $(PARSER).y
-	bison --defines=$(TOKEN).h --output=$(PARSER).c $^ -v
+$(SRC_DIR)/$(PARSER).c $(INCLUDE_DIR)/$(TOKEN).h: $(SRC_DIR)/$(PARSER).y
+	bison --defines=$(INCLUDE_DIR)/$(TOKEN).h --output=$(SRC_DIR)/$(PARSER).c $^ -v
 
-$(PARSER).o: $(PARSER).c
+$(BIN_DIR)/$(PARSER).o: $(SRC_DIR)/$(PARSER).c
 	$(CC) $(CFLAGS) -c $^  -o $@
 
-$(HELPER).o: $(HELPER).c $(HELPER).h
-	$(CC) $(CFLAGS) -c $(HELPER).c -o $(HELPER).o
-	
-$(MAIN).o: $(MAIN).c $(TOKEN).h
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-# printer
-$(EXPR).o: $(EXPR).c $(EXPR).h 
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-$(STMT).o: $(STMT).c $(STMT).h 
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-$(PARAM).o: $(PARAM).c $(PARAM).h 
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-$(DECL).o: $(DECL).c $(DECL).h 
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-$(TYPE).o: $(TYPE).c $(TYPE).h 
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-# resolve
-$(SYM).o: $(SYM).c $(SYM).h
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-$(SCOPE).o: $(SCOPE).c $(SCOPE).h
-	$(CC) $(CFLAGS) -c $<  -o $@
-
-$(HT).o: $(HT).c $(HT).h
-	$(CC) $(CFLAGS) -c $<  -o $@
-
 # clean
+clean:
+	$(MAKE) clean-parser
+	$(MAKE) clean-o
+	$(MAKE) clean-exec
+	$(MAKE) clean-test
+	
 clean-parser:
-	rm token.h parser.c scanner.c
+	rm include/token.h src/parser.c src/scanner.c src/parser.output 
 
 clean-o:
-	rm *.o
+	rm bin/*.o
 
 clean-exec:
-	rm $(EXEC)
+	rm $(BIN_DIR)/$(EXEC)
 
 clean-test:
 	rm -rf ./test/encode/good*.bminor.out
@@ -116,19 +98,35 @@ clean-test:
 	rm -rf ./test/parser/bad*.bminor.out
 	rm -rf ./test/resolve/bad*.bminor.out
 	rm -rf ./test/typecheck/bad*.bminor.out
-	
 
-clean:
-	rm token.h 
-	rm parser.c 
-	rm scanner.c 
-	rm parser.output 
-	rm *.o
-	rm $(EXEC)
 
 # test
 test:
 	make
 	./runtest.sh
+
+test-encoder:
+	make
+	./bin/test_encoder_unit.sh
+
+test-scanner:
+	make
+	./bin/test_scanner_unit.sh
+
+test-parser:
+	make
+	./bin/test_parser_unit.sh
+
+test-printer:
+	make
+	./bin/test_printer_unit.sh
+
+test-resolver:
+	make
+	./bin/test_resolver_unit.sh
+
+test-typechecker:
+	make
+	./bin/test_typechecker_unit.sh
 
 .PHONY: test

@@ -6,7 +6,8 @@ int main(int argc, char *argv[]){
     int status = EXIT_SUCCESS;
     /* I/O */
     if (argc < 3) {
-        fprintf(stderr, "Usage:  ./bminor [--encode|--scan|--parse|--print] input.bminor\n");
+        fprintf(stderr, "Usage:  ./bin/bminor [--encode|--scan|--parse|--print|--resolve|--typecheck] input.bminor\n");
+        fprintf(stderr, "        ./bin/bminor --codegen input.bminor output.s\n");
         return EXIT_FAILURE;
     }
     yyin = fopen(argv[2], "r");

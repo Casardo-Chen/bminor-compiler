@@ -1,137 +1,27 @@
 #!/bin/sh
 
-echo "start testing ..."
-# encode
-echo "testing encoder ..."
-for testfile in ./test/encode/good*.bminor
-do
-	if ./bminor --encode $testfile > $testfile.out
-	then
-		echo "$testfile success (as expected)"
-	else
-		echo "$testfile failure (INCORRECT)"
-	fi
-done
+# runtest.sh - Script to run all unit tests
+# @ Author: Meng Chen
+# @ Date: 11/28/2023
+echo "Running all unit tests..."
 
-for testfile in ./test/encode/bad*.bminor
-do
-	if ./bminor --encode $testfile > $testfile.out
-	then
-		echo "$testfile success (INCORRECT)"
-	else
-		echo "$testfile failure (as expected)"
-	fi
-done
+# Running each test script
+echo "1. Running Encoder Tests"
+./bin/test_encoder_unit.sh
 
-# scan
-echo "testing scanner ..."
-for testfile in ./test/scanner/good*.bminor
-do
-	if ./bminor --scan $testfile > $testfile.out
-	then
-		echo "$testfile success (as expected)"
-	else
-		echo "$testfile failure (INCORRECT)"
-	fi
-done
+echo "2. Running Scanner Tests"
+./bin/test_scanner_unit.sh
 
-for testfile in ./test/scanner/bad*.bminor
-do
-	if ./bminor --scan $testfile > $testfile.out
-	then
-		echo "$testfile success (INCORRECT)"
-	else
-		echo "$testfile failure (as expected)"
-	fi
-done
+echo "3. Running Parser Tests"
+./bin/test_parser_unit.sh
 
+echo "4. Running Printer Tests"
+./bin/test_printer_unit.sh
 
-# parser
-echo "testing parser ..."
-for testfile in ./test/parser/good*.bminor
-do
-	if ./bminor --parse $testfile > $testfile.out
-	then
-		echo "$testfile success (as expected)"
-	else
-		echo "$testfile failure (INCORRECT)"
-	fi
-done
+echo "5. Running Resolver Tests"
+./bin/test_resolver_unit.sh
 
-for testfile in ./test/parser/bad*.bminor
-do
-	if ./bminor --parse $testfile > $testfile.out
-	then
-		echo "$testfile success (INCORRECT)"
-	else
-		echo "$testfile failure (as expected)"
-	fi
-done
+echo "6. Running Typechecker Tests"
+./bin/test_typechecker_unit.sh
 
-# printer
-echo "testing printer ..."
-for testfile in ./test/printer/good*.bminor
-do
-	if ./bminor --print $testfile > $testfile.a.out
-	then
-		if ./bminor --print $testfile.a.out > $testfile.b.out
-		then
-			if diff $testfile.a.out $testfile.b.out > $testfile.out
-			then 
-				echo "$testfile success (as expected)"
-			else
-				echo "$testfile failure (difference found) (INCORRECT)"
-			fi
-		else
-			echo "$testfile failure (2 parsing) (INCORRECT)"
-		fi
-	else
-		echo "$testfile failure (1st parsing) (INCORRECT)"
-	fi
-done
-
-# resolver
-echo "testing resolver ..."
-for testfile in ./test/resolve/good*.bminor
-do
-	if ./bminor --resolve $testfile > $testfile.out
-	then
-		echo "$testfile success (as expected)"
-	else
-		echo "$testfile failure (INCORRECT)"
-	fi
-done
-
-for testfile in ./test/resolve/bad*.bminor
-do
-	if ./bminor --resolve $testfile > $testfile.out
-	then
-		echo "$testfile success (INCORRECT)"
-	else
-		echo "$testfile failure (as expected)"
-	fi
-done
-
-# typechecker
-echo "testing typechecker ..."
-for testfile in ./test/typecheck/good*.bminor
-do
-	if ./bminor --typecheck $testfile > $testfile.out
-	then
-		echo "$testfile success (as expected)"
-	else
-		echo "$testfile failure (INCORRECT)"
-	fi
-done
-
-for testfile in ./test/typecheck/bad*.bminor
-do
-	if ./bminor --typecheck $testfile > $testfile.out
-	then
-		echo "$testfile success (INCORRECT)"
-	else
-		echo "$testfile failure (as expected)"
-	fi
-done
-
-echo "testing completed"
+echo "All unit tests completed."
