@@ -43,6 +43,11 @@ int main(int argc, char *argv[]){
         type_err = typecheck(); 
         status = type_err ? EXIT_FAILURE : EXIT_SUCCESS;
     } 
+    /* Codegen */
+    if (strcmp(argv[1],"--codegen") == 0 ) {
+        outfile = fopen(argv[3], "w");
+        status = codegen();
+    }
     fclose(yyin);
     return status;
 }

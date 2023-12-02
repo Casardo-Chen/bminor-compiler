@@ -194,25 +194,17 @@ void stmt_typecheck( struct stmt *s, struct decl *d ){
             struct type *func_type = d->type->subtype;
             t = expr_typecheck(s->expr);
             if (!t) break;
-            // if (t->kind == TYPE_ARRAY){
-            //     printf("type error: cannot return an array ");
-            //     printf(" (");
-            //     expr_print(s->expr);
-            //     printf(") in a function\n");
-            //     type_error++;
-            // }
             if (!type_eq(t, func_type)) {
                 printf("type error: cannot return a ");
                 type_print(t);
                 printf(" (");
                 expr_print(s->expr);
-                printf(") in a function (%s) that returns", d->name);
+                printf(") in a function (%s) that returns ", d->name);
                 type_print(func_type);
                 printf("\n");
                 type_error++;
             }
             type_delete(t);
-            type_delete(func_type);
             break;
         }
         case STMT_PRINT:

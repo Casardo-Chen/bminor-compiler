@@ -1,0 +1,6 @@
+foo: function void();
+foo: function void() = {}
+
+bar: function void();
+bar: function void() = {}
+bar: function void();

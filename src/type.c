@@ -62,9 +62,6 @@ make comparision between two types
 @return 1 if same return 0 if different
 */
 int type_eq(struct type *a, struct type *b){
-    // if (a->kind != b->kind) {
-    //     return 0;
-    // } else 
     if (a->kind == b->kind) {
         if (a->kind == TYPE_ARRAY) {
             if (!type_eq(a->subtype,b->subtype)) return 0;

@@ -102,8 +102,10 @@ void decl_resolve( struct decl *d ){
 
             /* prev: !proto | curr: proto */
             else if (!prev->proto && d->symbol->proto) {
-                printf("resolve error: prototype of %s after the definition of %s global %d.\n", d->name, prev->name, prev->which);
-                resolve_error++;
+                if (!param_list_eq(prev->type->params,d->type->params)){ // the parameter name can vary as long as the type is the same.
+                    printf("resolve error: prototype of %s after the definition of %s global %d.\n", d->name, prev->name, prev->which);
+                    resolve_error++;
+                }
             }
 
             /* prev: !proto | curr: !proto */
@@ -187,4 +189,43 @@ void decl_typecheck( struct decl *d ){
     /* function */
     stmt_typecheck(d->code, d);
     decl_typecheck(d->next);
+}
+
+void decl_codegen_global(struct decl *d) {
+    if(!d) return;
+    switch (d->type->kind){
+    case TYPE_ARRAY:
+        break;
+    case TYPE_BOOLEAN:
+    case TYPE_INTEGER:
+        fprintf(outfile, ".data\n");
+        fprintf(outfile, ".global %s\n", d->name);
+        fprintf(outfile, "%s:\n\t.quad %d\n", d->name, d->value ? d->value->literal_value : 0);
+        break;
+    case TYPE_CHARACTER:
+        fprintf(outfile, ".data\n");
+        fprintf(outfile, ".global %s\n", d->name);
+        fprintf(outfile, "%s:\n\t.quad %d\n", d->name, d->value ? d->value->literal_value : '\0');
+        break;
+    case TYPE_STRING:
+        fprintf(outfile, ".data\n");
+        fprintf(outfile, ".global %s\n", d->name);
+        fprintf(outfile, "%s:\n\t.quad %d\n", d->name, d->value ? d->value->literal_value : '\0');
+        break;
+    case TYPE_FUNCTION:
+
+    case TYPE_FLOAT:
+        printf("codegen error: floating not supported.\n");
+        exit(1);
+        break;
+    default:
+        printf("codegen error: unknown type.\n");
+        break;
+    }
+
+    decl_codegen_global(d->next);
+}
+
+void decl_codegen_local(struct decl *d) {
+
 }

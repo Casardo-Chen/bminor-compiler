@@ -760,3 +760,176 @@ struct type* expr_typecheck(struct expr* e){
             return 0;
     }
 }
+
+void expr_codegen( struct expr *e ){
+    if(!e) return;
+    switch(e->kind) {
+        // Leaf node: allocate register and load value.
+        case EXPR_IDENT:
+            e->reg = scratch_alloc();
+            printf("\tMOVQ %%%s, %%%s\n",
+                    symbol_codegen(e->symbol),
+                    scratch_name(e->reg));
+            break;
+        // Interior node: generate children, then add them.
+        case EXPR_ADD:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            fprintf(outfile, "\tADDQ %%%s, %%%s\n",
+                              scratch_name(e->left->reg),
+                              scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_SUB:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            fprintf(outfile, "\tSUBQ %%%s, %%%s\n",
+                              scratch_name(e->left->reg),
+                              scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_MUL:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            fprintf(outfile, "\tMOVQ %%%s, %%rax\n",scratch_name(e->left->reg)); // move left to rax
+            fprintf(outfile, "\tIMULQ %%%s\n",scratch_name(e->right->reg)); // mult
+            fprintf(outfile, "\tMOVQ %%%%rax, %%%s\n",scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_DIV:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            fprintf(outfile, "\tMOVQ %%%s, %%rax\n",scratch_name(e->left->reg)); // move left to rax
+            fprintf(outfile, "\tCQO\n"); // sign extend
+            fprintf(outfile, "\tIDIVQ %%%s\n",scratch_name(e->right->reg)); // mult
+            fprintf(outfile, "\tMOVQ %%rax, %%%s\n",scratch_name(e->right->reg));
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_MOD:
+            expr_codegen(e->left);
+            expr_codegen(e->right);
+            fprintf(outfile, "\tMOVQ %%%s, %%rax\n", scratch_name(e->left->reg));
+            fprintf(outfile, "\tCQO\n");
+            fprintf(outfile, "\tIDIVQ %%%s\n", scratch_name(e->right->reg));
+            fprintf(outfile, "\tMOVQ %%rdx, %%%s\n", scratch_name(e->right->reg)); // retrieve mode 64
+            e->reg = e->right->reg;
+            scratch_free(e->left->reg);
+            break;
+        case EXPR_GT:
+        case EXPR_GTE:
+        case EXPR_LT:
+        case EXPR_LTE:
+        case EXPR_EQ:
+        case EXPR_NOT_EQ:
+            expr_compare(e);
+            break;
+        case EXPR_NEG:
+            expr_codegen(e->right);
+            e->reg = scratch_alloc();
+            fprintf(outfile, "\tMOVQ %%%s, %%rax\n", scratch_name(e->right->reg));
+            fprintf(outfile, "\tMOVQ $-1, %%%s\n", scratch_name(extra_scratch));
+            fprintf(outfile, "\tIMULQ %%%s\n", scratch_name(extra_scratch));
+            fprintf(outfile, "\tMOVQ %%rax, %%%s\n", scratch_name(e->right->reg));
+            scratch_free(scratch_table, extra_scratch);
+            e->reg = e->right->reg;
+            break;
+        case EXPR_POS:
+            expr_codegen(e->right, scratch_table, stream);
+            e->reg = e->right->reg;
+            break;
+        case EXPR_INCREMENT:
+            expr_codegen(e->left);
+            if (e->left->kind == EXPR_IDENT) {
+                // update value in appropriate saved location
+                fprintf(outfile, "\tADDQ $1, %s\n", symbol_codegen(el->symbol));
+            } else if (el->kind == EXPR_SUBT) {
+                // update index in array
+                expr_codegen(e->left->left);
+                expr_codegen(e->left->right);
+                fprintf(outfile, "\tADDQ $1, (%%%s,%%%s,8)\n", scratch_name(el->left->reg),scratch_name(el->right->reg));
+                scratch_free(el->right->reg);
+                scratch_free(el->left->reg);
+            }
+            e->reg = el->reg;
+            break;
+        case EXPR_INT_LIT:
+        case EXPR_BOOL_LIT:
+        case EXPR_CHAR_LIT:
+			e->reg = scratch_alloc();
+			printf("MOVQ %d, %s\n", 
+                    e->literal_value, 
+                    scratch_name(e->reg));
+			break;
+        case EXPR_STR_LIT: {
+            // create a string in data section
+            int label = label_create();
+            fprintf(outfile, ".data\n%s:\n\t.string\t", label_name(label));
+            expr_unescape_string(e->string_literal, outfile);
+            fprintf(outfile, "\n");
+            fprintf(outfile, ".text\n"); // continue back in text section
+            e->reg = scratch_alloc(); // move address of string into reg
+            fprintf(outfile, "\tLEAQ %s, %%%s\n", 
+                              label_name(label), 
+                              scratch_name(e->reg));
+            break;
+        }
+        case EXPR_ASSIGN:
+            expr_codegen(e->left);
+            fprintf("MOVQ %s, %s\n",
+                    scratch_name(e->left->reg),
+                    symbol_codegen(e->right->symbol));
+            e->reg = e->left->reg;
+            break;
+        case EXPR_SUBT:
+            break;
+        case EXPR_PAREN:
+             expr_codegen(e->left);
+             break;
+        default:
+            break;
+    }
+}
+
+void expr_codegen_compare(struct expr *e){
+    expr_codegen(e->left);
+    expr_codegen(e->right);
+    int l1 = label_create();
+    int l2 = label_create();
+    e->reg = e->right->reg;
+    fprintf(outfile, "\tCMP %s, %s\n", scratch_name(e->left->reg), scratch_name(e->right->reg));
+    switch (e->kind){
+        case EXPR_GT:
+            fprintf(outfile, "\tJG %s\n", label_name(l1));
+            break;
+        case EXPR_LT:
+            fprintf(outfile, "\tJL %s\n", label_name(l1));
+            break;
+        case EXPR_GTE:
+            fprintf(outfile, "\tJGE %s\n", label_name(l1));
+            break;
+        case EXPR_LTE:
+            fprintf(outfile, "\tJLE %s\n", label_name(l1));
+            break;
+        case EXPR_EQ:
+            fprintf(outfile, "\tJE %s\n", label_name(l1));
+            break;
+        case EXPR_NOT_EQ:
+            fprintf(outfile, "\tJNE %s\n", label_name(l1));
+            break;
+        default:
+            printf("codegen error> %d this should not happen\n", e->kind);
+            exit(1);
+            break;
+    }
+    fprintf(outfile, "\tJE %s\n", label_name(l1));
+    fprintf(outfile, "\tMOVQ $0, %s\n", scratch_name(e->reg));
+    fprintf(outfile, "\tJMP %s\n", label_name(l2));
+    fprintf(outfile, "%s:\n", label_name(l1));
+    fprintf(outfile, "MOVQ $1, %s\n", scratch_name(e->reg));
+    fprintf(outfile, "%s:\n", label_name(l2));
+    scratch_free(e->left->reg);
+}

@@ -21,13 +21,15 @@ struct decl {
 
 extern int resolve_error;
 extern int type_error;
+extern FILE* outfile;
 
 struct decl * decl_create( const char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next );
 void decl_print( struct decl *d, int indent );
 void indent_print(int indent);
 void decl_resolve( struct decl *d );
 void decl_typecheck( struct decl *d );
-
+void decl_codegen_global(struct decl *d); 
+void decl_codegen_local(struct decl *d);
 
 #endif
 

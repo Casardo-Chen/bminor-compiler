@@ -247,4 +247,11 @@ int typecheck(){
     }
     return EXIT_FAILURE;
 }
- 
+
+int codegen(){
+    if (!typecheck()) {
+        decl_codegen_global(parser_result);
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}

@@ -28,6 +28,7 @@ TYPE = type
 SYM = symbol
 SCOPE = scope
 HT = hash_table
+SCRATCH = scratch
 
 ###############
 # Directories #
