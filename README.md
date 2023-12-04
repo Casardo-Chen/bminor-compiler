@@ -1,14 +1,52 @@
 BMinor Compiler
 -------------------------------
-
 This code repo contains the code for the BMinor compiler.
 
 An overview of BMinor language can be found here: [2023 BMinor Language](https://dthain.github.io/compilers-fa23/bminor)
 
-For your sanity and ours, you *must* adhere to the following style:
-- Every function must be prefixed with the name of the structure that it manipulates.
-- Function prototypes go in the `.h` file of the corresponding name.
-- Function implementations go in the `.c` file of the corresponding name.
+```
+./
+├── bin
+│   ├── test_codegen_unit.sh
+│   ├── test_encoder_unit.sh
+│   ├── test_parser_unit.sh
+│   ├── test_printer_unit.sh
+│   ├── test_resolver_unit.sh
+│   ├── test_scanner_unit.sh
+│   └── test_typechecker_unit.sh
+├── include
+│   ├── bminor_helper.h
+│   ├── decl.h
+│   ├── encoder.h
+│   ├── expr.h
+│   ├── hash_table.h
+│   ├── param_list.h
+│   ├── scope.h
+│   ├── scratch.h
+│   ├── stmt.h
+│   ├── symbol.h
+│   └── type.h
+├── Makefile
+├── README.md
+├── runtest.sh
+├── src
+│   ├── bminor_helper.c
+│   ├── decl.c
+│   ├── encoder.c
+│   ├── expr.c
+│   ├── hash_table.c
+│   ├── library.c
+│   ├── main.c
+│   ├── param_list.c
+│   ├── parser.y
+│   ├── scanner.l
+│   ├── scope.c
+│   ├── scratch.c
+│   ├── stmt.c
+│   ├── symbol.c
+│   └── type.c
+└── test
+```
 
 For example, the function `decl_print` prints out a declaration.
 Its prototype is found in `decl.h` and the implementation is found in `decl.c`.

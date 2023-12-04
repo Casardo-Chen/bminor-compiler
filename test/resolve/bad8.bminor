@@ -1,6 +1,5 @@
-foo: function void();
-foo: function void() = {}
+// Multiple declarations in param list
 
-bar: function void();
-bar: function void() = {}
-bar: function void();
+main: function void (x: integer, x: float) = {
+    return x;
+}
