@@ -255,3 +255,94 @@ void stmt_typecheck( struct stmt *s, struct decl *d ){
     stmt_typecheck(s->next, d);
 }
 
+void stmt_codegen(struct stmt *s, const char *function_name){
+    if(!s) return;
+    switch(s->kind){
+        case STMT_DECL:
+            decl_codegen_local(s->decl);
+            break;
+        case STMT_EXPR:
+            expr_codegen(s->expr);
+            scratch_free(s->expr->reg);
+            break;
+        case STMT_IF_ELSE:{
+            int else_label = label_create();
+            int done_label = label_create();
+            expr_codegen(s->expr);
+            fprintf(outfile, "\tCMP $0, %%%s\n",scratch_name(s->expr->reg));
+            scratch_free(s->expr->reg);
+            fprintf(outfile, "\tJE %s\n",label_name(else_label));
+            stmt_codegen(s->body, function_name);
+            fprintf(outfile, "\tJMP %s\n",label_name(done_label));
+            fprintf(outfile, "%s:\n",label_name(else_label));
+            stmt_codegen(s->else_body, function_name);
+            fprintf(outfile, "%s:\n",label_name(done_label));
+            break;
+        }
+        case STMT_RETURN:
+            expr_codegen(s->expr);
+            fprintf(outfile, "\tMOV %%%s, %%rax\n",scratch_name(s->expr->reg));
+            fprintf(outfile, "\tJMP .%s_epilogue\n", function_name);
+            scratch_free(s->expr->reg);
+            break;
+        case STMT_FOR:{
+            int top_label = label_create();
+            int done_label = label_create();
+            if (s->init_expr){
+                expr_codegen(s->init_expr);
+                scratch_free(s->expr->reg);
+            }
+            fprintf(outfile, "%s:\n", label_name(top_label));
+            if (s->expr){
+                expr_codegen(s->expr);
+                fprintf(outfile, "\tCMPQ $0, %%%s\n", scratch_name(s->expr->reg));
+                scratch_free(s->expr->reg);
+                fprintf(outfile, "\tJE %s\n", label_name(done_label));
+                
+            }
+            stmt_codegen(s->body, function_name);
+            if (s->next_expr){
+                    expr_codegen(s->next_expr);
+                    scratch_free(s->expr->reg);
+            }
+            fprintf(outfile, "\tJMP %s\n", label_name(top_label));
+            fprintf(outfile, "%s:\n", label_name(done_label));
+            break;
+        }
+        case STMT_PRINT:
+            for (struct expr* curr = s->expr; curr; curr = curr->right) {
+                struct type* t = expr_typecheck(curr->left);
+                struct expr* e;
+                switch (t->kind) {
+                    case TYPE_BOOLEAN:
+                        e = expr_create(EXPR_CALL, expr_create_name("print_boolean"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        break;
+                    case TYPE_CHARACTER:
+                        e = expr_create(EXPR_CALL, expr_create_name("print_character"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        break;
+                    case TYPE_INTEGER:
+                        e = expr_create(EXPR_CALL, expr_create_name("print_integer"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        break;
+                    case TYPE_STRING:
+                        e = expr_create(EXPR_CALL, expr_create_name("print_string"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        break;
+                    case TYPE_FLOAT: // TODO: reserved for float
+                        printf("codegen error: floating not supported.\n");
+                        exit(1);
+                        break;
+                    default:
+                        printf("codegen error: an unprintable type %d was found in a print statement.\n", t->kind);
+                        exit(1);
+                        break;
+                }
+                expr_codegen_fcall(e);
+                scratch_free(e->reg);
+            }
+            break;
+        case STMT_BR:
+            stmt_codegen(s->body, function_name);
+            break;
+
+    }
+    stmt_codegen(s->next, function_name);
+}

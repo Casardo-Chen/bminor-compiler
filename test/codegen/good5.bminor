@@ -1,0 +1,6 @@
+// Test expo
+x:integer=5;
+main:function integer ()=
+{
+	print x ^ 3;
+}

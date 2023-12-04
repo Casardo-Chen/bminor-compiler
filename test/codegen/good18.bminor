@@ -1,0 +1,17 @@
+// tests boolean operations
+x:integer = 1;
+main: function string () =
+{
+    y: integer = 12;
+	if(x == 1 && y<13)
+	{
+        if(x > 1 || y<13) print "x= ", x, "\n";
+		x++;
+        print "should be printed";
+	}
+	else
+	{
+        print "shouldn't be printed";
+		return  "wrong";
+	}	
+}

@@ -1,4 +1,5 @@
 #include "decl.h"
+#include "encoder.h"
 
 struct decl * decl_create( const char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ){
     struct decl *d = (struct decl *) malloc(sizeof(struct decl));
@@ -128,9 +129,21 @@ void decl_resolve( struct decl *d ){
     
     /* function */
     if(d->type->kind == TYPE_FUNCTION) {
+        if (d->symbol->proto){
+
+        }
         scope_enter();
         param_list_resolve(d->type->params);
-        if (d->code) stmt_resolve(d->code);
+        // count how many variables in the scope, used in codegen
+        if (d->code){ // function
+            stmt_resolve(d->code);
+            if (prev) { // previous prototype exists
+                prev->total = scope_var_count();
+                d->symbol = prev;
+            } else { // definition is the reference
+                d->symbol->total = scope_var_count();
+            }
+        } else {d->symbol->total = scope_var_count();} // proto
         scope_exit();
     }
 
@@ -194,38 +207,106 @@ void decl_typecheck( struct decl *d ){
 void decl_codegen_global(struct decl *d) {
     if(!d) return;
     switch (d->type->kind){
-    case TYPE_ARRAY:
-        break;
-    case TYPE_BOOLEAN:
-    case TYPE_INTEGER:
-        fprintf(outfile, ".data\n");
-        fprintf(outfile, ".global %s\n", d->name);
-        fprintf(outfile, "%s:\n\t.quad %d\n", d->name, d->value ? d->value->literal_value : 0);
-        break;
-    case TYPE_CHARACTER:
-        fprintf(outfile, ".data\n");
-        fprintf(outfile, ".global %s\n", d->name);
-        fprintf(outfile, "%s:\n\t.quad %d\n", d->name, d->value ? d->value->literal_value : '\0');
-        break;
-    case TYPE_STRING:
-        fprintf(outfile, ".data\n");
-        fprintf(outfile, ".global %s\n", d->name);
-        fprintf(outfile, "%s:\n\t.quad %d\n", d->name, d->value ? d->value->literal_value : '\0');
-        break;
-    case TYPE_FUNCTION:
+        case TYPE_ARRAY:
+            if (d->type->subtype->kind != TYPE_INTEGER) {
+                printf("codegen error: array not implemented.\n");
+                exit(1);
+            }
+            fprintf(outfile, ".data\n");
+            int l;
+            if (d->value) {
+                l = label_create();
+                fprintf(outfile, "%s:\n", label_name(l));
+                struct expr* arg = d->value->left;
+                while (arg) {
+                    fprintf(outfile, "\t.quad %d\n", arg->left->literal_value);
+                    arg = arg->right;
+                }
+            }
+            fprintf(outfile, ".globl %s\n", d->name);
+            fprintf(outfile, "%s:\n", d->name);
+            fprintf(outfile, "\t.quad %s\n", d->value ? label_name(l) : "0");
+            break;
+        case TYPE_BOOLEAN:
+        case TYPE_INTEGER:
+        case TYPE_CHARACTER:
+            d->value = d->value ? d->value->left : d->value; 
+            fprintf(outfile, ".data\n");
+            fprintf(outfile, ".globl %s\n", d->name);
+            fprintf(outfile, "%s:\n",d->name);
+            fprintf(outfile, "\t.quad %d\n", d->value ? d->value->literal_value : 0);
+            break;
+        case TYPE_STRING:{
+            d->value = d->value ? d->value->left : d->value; 
+            fprintf(outfile, ".data\n");
+            int l;
+            if (d->value){
+                l = label_create();
+                fprintf(outfile, "%s:\n", string_label_name(l));
+                char es[BUFSIZ];
+                string_encode(d->value->string_literal, es);
+                fprintf(outfile, "\t.string %s\n", es);
+            }
+            fprintf(outfile, ".globl %s\n", d->name);
+            fprintf(outfile, "%s:\n",d->name);
+            fprintf(outfile, "\t.quad %s\n", d->value ? string_label_name(l) : "0");
+            break;
+        }
+        case TYPE_FUNCTION:{
+            fprintf(outfile, ".text\n");
+            fprintf(outfile, ".globl %s\n", d->name);
+            if (d->code){
+                fprintf(outfile, "%s:\n", d->name); 
+                fprintf(outfile, "\tPUSHQ %%rbp\n");
+                fprintf(outfile, "\tMOVQ %%rsp, %%rbp\n");
+                /* param codegen */
+                int num_args = param_list_codegen(d->type->params);
+                /* local vars */
+                fprintf(outfile, "\tSUBQ $%d, %%rsp\n", (d->symbol->total - num_args) * 8);
 
-    case TYPE_FLOAT:
-        printf("codegen error: floating not supported.\n");
-        exit(1);
-        break;
-    default:
-        printf("codegen error: unknown type.\n");
-        break;
+                /* push all the callee saved registers */
+                fprintf(outfile, "\tPUSHQ %%rbx\n");
+                fprintf(outfile, "\tPUSHQ %%r12\n");
+                fprintf(outfile, "\tPUSHQ %%r13\n");
+                fprintf(outfile, "\tPUSHQ %%r14\n");
+                fprintf(outfile, "\tPUSHQ %%r15\n");
+
+                /* body */
+                stmt_codegen(d->code, d->name);
+
+                /* pop all the callee saved register */
+                fprintf(outfile, ".%s_epilogue:\n", d->name);
+                fprintf(outfile, "\tPOPQ %%r15\n");
+                fprintf(outfile, "\tPOPQ %%r14\n");
+                fprintf(outfile, "\tPOPQ %%r13\n");
+                fprintf(outfile, "\tPOPQ %%r12\n");
+                fprintf(outfile, "\tPOPQ %%rbx\n");
+
+                /* return */
+                fprintf(outfile, "\tMOVQ %%rbp, %%rsp\n");
+                fprintf(outfile, "\tPOPQ %%rbp\n");
+                fprintf(outfile, "\tRET\n");
+            }
+            break;
+        }
+        case TYPE_FLOAT: // TODO: reserved for float
+            printf("codegen error: floating not supported.\n");
+            exit(1);
+            break;
+        default:
+            printf("codegen error: unknown type kind %d.\n", d->type->kind);
+            break;
     }
 
     decl_codegen_global(d->next);
 }
 
 void decl_codegen_local(struct decl *d) {
-
+    if (!d) return;
+    if (d->value) {
+        expr_codegen(d->value);
+        fprintf(outfile, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+        scratch_free(d->value->reg);
+    }
+    decl_codegen_local(d->next);
 }

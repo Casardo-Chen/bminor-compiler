@@ -42,7 +42,7 @@ INCLUDE_DIR = include
 ###############
 # 	  make    #
 ###############
-OBJECTS = $(BIN_DIR)/$(MAIN).o $(BIN_DIR)/$(HELPER).o $(BIN_DIR)/$(ENCODER).o $(BIN_DIR)/$(SCANNER).o $(BIN_DIR)/$(PARSER).o $(BIN_DIR)/$(EXPR).o $(BIN_DIR)/$(STMT).o $(BIN_DIR)/$(PARAM).o $(BIN_DIR)/$(DECL).o $(BIN_DIR)/$(TYPE).o $(BIN_DIR)/$(SYM).o $(BIN_DIR)/$(SCOPE).o $(BIN_DIR)/$(HT).o
+OBJECTS = $(BIN_DIR)/$(MAIN).o $(BIN_DIR)/$(HELPER).o $(BIN_DIR)/$(ENCODER).o $(BIN_DIR)/$(SCANNER).o $(BIN_DIR)/$(PARSER).o $(BIN_DIR)/$(EXPR).o $(BIN_DIR)/$(STMT).o $(BIN_DIR)/$(PARAM).o $(BIN_DIR)/$(DECL).o $(BIN_DIR)/$(TYPE).o $(BIN_DIR)/$(SYM).o $(BIN_DIR)/$(SCOPE).o $(BIN_DIR)/$(HT).o $(BIN_DIR)/$(SCRATCH).o
 
 $(BIN_DIR)/$(EXEC): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ 
@@ -67,6 +67,10 @@ $(SRC_DIR)/$(PARSER).c $(INCLUDE_DIR)/$(TOKEN).h: $(SRC_DIR)/$(PARSER).y
 
 $(BIN_DIR)/$(PARSER).o: $(SRC_DIR)/$(PARSER).c
 	$(CC) $(CFLAGS) -c $^  -o $@
+
+# codegen
+$(BIN_DIR)/library.o: $(SRC_DIR)/library.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # clean
 clean:
@@ -93,6 +97,9 @@ clean-test:
 	rm -rf ./test/printer/good*.bminor.out
 	rm -rf ./test/resolve/good*.bminor.out
 	rm -rf ./test/typecheck/good*.bminor.out
+	rm -rf ./test/codegen/good*.bminor.out
+	rm -rf ./test/codegen/good*.bminor.s
+	rm -rf ./test/codegen/good*.bminor.exe
 
 	rm -rf ./test/encode/bad*.bminor.out
 	rm -rf ./test/scanner/bad*.bminor.out

@@ -24,4 +24,7 @@ echo "5. Running Resolver Tests"
 echo "6. Running Typechecker Tests"
 ./bin/test_typechecker_unit.sh
 
+echo "7. Running Codegen Tests"
+./bin/test_codegen_unit.sh
+
 echo "All unit tests completed."

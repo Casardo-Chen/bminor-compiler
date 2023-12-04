@@ -73,3 +73,18 @@ void param_list_valid(struct param_list *p) {
     }
     param_list_valid(p->next);
 }
+
+int param_list_codegen (struct param_list * p){
+    if (!p) return 0;
+    unsigned int param_counter = 0;
+    while (p) {
+        if (param_counter >= 6){
+                printf("codegen error: bminor supports maximum 6 arguments. too many arguments\n");
+                exit(1);
+        }
+        fprintf(outfile, "\tPUSHQ %%%s\n", arg_reg[param_counter]);
+        param_counter++;
+        p = p->next;
+    }
+    return param_counter;
+}

@@ -3,6 +3,7 @@
 
 #include "symbol.h"
 #include "scope.h"
+#include "scratch.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,9 +71,10 @@ struct expr {
 };
 
 extern int resolve_error;
+extern FILE* outfile;
+char* arg_reg[6];
 
 struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right, int precedence );
-
 struct expr * expr_create_name( const char *n );
 struct expr * expr_create_integer_literal( int c );
 struct expr * expr_create_float_literal( const char *f );
@@ -82,6 +84,7 @@ struct expr * expr_create_string_literal( const char *str );
 
 void expr_print( struct expr *e );
 void print_op( struct expr *e, const char *op);
+
 struct expr * expr_check( struct expr *e, assoc_t assoc);
 struct expr * expr_wrap( struct expr *e );
 void expr_resolve( struct expr *e );
@@ -90,7 +93,9 @@ void expr_delete( struct expr *e);
 struct type * expr_typecheck( struct expr *e );
 void expr_error_print( struct expr *e, struct type *lt, struct type *rt);
 int expr_const(struct expr *e);
+
 void expr_codegen( struct expr *e);
 void expr_codegen_compare(struct expr *e);
+void expr_codegen_fcall(struct expr *e);
 
 #endif

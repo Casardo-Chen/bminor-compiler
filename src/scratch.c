@@ -1,12 +1,18 @@
 #include "scratch.h"
 
+static int reg_table[] = {1,1,1,1,1,1,1};
+static int NUM_REGS = 7;
+static int curr_label = -1;
+
 /* allocate a reg */ 
 int scratch_alloc(){
-    for (int reg = 0; reg < NUM_REGS; reg++) {
-        reg_table[reg] = reg_table[reg] ? 0 : 1;
-        return reg;
+    for (int i = 0; i < NUM_REGS; i++) {
+        if (reg_table[i] == 1) {
+            reg_table[i] = 0; // take up the space
+            return i;
+        }
     }
-    fprintf("codegen error: no free registers left.\n"); // if there are no free registers, raise an error
+    printf("codegen error: no free registers left.\n"); // if there are no free registers, raise an error
     exit(1);
     return -1;
 }
@@ -35,7 +41,7 @@ const char* scratch_name(int r) {
 }
 
 int label_create() {
-    return curr_label++;
+    return ++curr_label;
 }
 
 const char* label_name(int l) {
@@ -47,5 +53,5 @@ const char* label_name(int l) {
 const char * string_label_name (int l) {
     char str[BUFSIZ];
     sprintf(str, ".SL%d", l);
-    return strdup(s);
+    return strdup(str);
 }

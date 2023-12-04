@@ -20,6 +20,7 @@ extern FILE *yyin;
 extern struct decl * parser_result;
 extern int resolve_error;
 extern int type_error;
+FILE * outfile;
 
 typedef enum yytokentype token_t;
 

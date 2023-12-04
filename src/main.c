@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
     } 
     /* Codegen */
     if (strcmp(argv[1],"--codegen") == 0 ) {
-        outfile = fopen(argv[3], "w");
+        outfile = argc < 4 ? fopen("program.s", "w") : fopen(argv[3], "w");
         status = codegen();
     }
     fclose(yyin);
