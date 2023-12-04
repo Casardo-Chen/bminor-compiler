@@ -6,7 +6,7 @@ An overview of BMinor language can be found here: [2023 BMinor Language](https:/
 
 ```
 ./
-├── bin
+├── bin                             /* binary executables and test scripts */
 │   ├── test_codegen_unit.sh
 │   ├── test_encoder_unit.sh
 │   ├── test_parser_unit.sh
@@ -14,7 +14,7 @@ An overview of BMinor language can be found here: [2023 BMinor Language](https:/
 │   ├── test_resolver_unit.sh
 │   ├── test_scanner_unit.sh
 │   └── test_typechecker_unit.sh
-├── include
+├── include                         /* header files that include macros, structs, and protoypes */
 │   ├── bminor_helper.h
 │   ├── decl.h
 │   ├── encoder.h
@@ -34,7 +34,7 @@ An overview of BMinor language can be found here: [2023 BMinor Language](https:/
 │   ├── decl.c
 │   ├── encoder.c
 │   ├── expr.c
-│   ├── hash_table.c
+│   ├── hash_table.c                /* a string-based hash table for typechecking */
 │   ├── library.c
 │   ├── main.c
 │   ├── param_list.c
@@ -44,13 +44,9 @@ An overview of BMinor language can be found here: [2023 BMinor Language](https:/
 │   ├── scratch.c
 │   ├── stmt.c
 │   ├── symbol.c
-│   └── type.c
+│   └── type.c                      /* represent abstract types */
 └── test
 ```
-
-For example, the function `decl_print` prints out a declaration.
-Its prototype is found in `decl.h` and the implementation is found in `decl.c`.
-
 For the parsing assignment:
 
 The include files `decl.h stmt.h expr.h type.h param_list.h`

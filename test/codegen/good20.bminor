@@ -1,0 +1,6 @@
+// Test float
+x:float = 5.5;
+main:function integer ()=
+{
+	print x ^ 3;
+}

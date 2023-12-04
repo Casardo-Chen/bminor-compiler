@@ -129,9 +129,6 @@ void decl_resolve( struct decl *d ){
     
     /* function */
     if(d->type->kind == TYPE_FUNCTION) {
-        if (d->symbol->proto){
-
-        }
         scope_enter();
         param_list_resolve(d->type->params);
         // count how many variables in the scope, used in codegen
@@ -209,7 +206,7 @@ void decl_codegen_global(struct decl *d) {
     switch (d->type->kind){
         case TYPE_ARRAY:
             if (d->type->subtype->kind != TYPE_INTEGER) {
-                printf("codegen error: array not implemented.\n");
+                printf("codegen error: array of types other than integers not implemented.\n");
                 exit(1);
             }
             fprintf(outfile, ".data\n");
@@ -290,8 +287,13 @@ void decl_codegen_global(struct decl *d) {
             break;
         }
         case TYPE_FLOAT: // TODO: reserved for float
-            printf("codegen error: floating not supported.\n");
-            exit(1);
+            d->value = d->value ? d->value->left : d->value; 
+            fprintf(outfile, ".data\n");
+            fprintf(outfile, ".globl %s\n", d->name);
+            fprintf(outfile, "%s:\n",d->name);
+            char es[BUFSIZ];
+            string_encode(d->value->string_literal, es);
+            fprintf(outfile, "\t.double %s\n", es);
             break;
         default:
             printf("codegen error: unknown type kind %d.\n", d->type->kind);
@@ -305,8 +307,12 @@ void decl_codegen_local(struct decl *d) {
     if (!d) return;
     if (d->value) {
         expr_codegen(d->value);
-        fprintf(outfile, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
-        scratch_free(d->value->reg);
+        if (d->type->kind == TYPE_FLOAT){
+            // TODO: finish the float case 
+        } else{
+            fprintf(outfile, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
+            scratch_free(d->value->reg);            
+        }
     }
     decl_codegen_local(d->next);
 }

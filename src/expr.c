@@ -821,7 +821,7 @@ void expr_codegen( struct expr *e ){
             e->reg = e->right->reg;
             scratch_free(e->left->reg);
             break;
-        case EXPR_EXP: // FIXME
+        case EXPR_EXP: 
             expr_codegen(e->left);
             expr_codegen(e->right);
             fprintf(outfile, "\tMOVQ %%%s, %%rdi\n", scratch_name(e->left->reg));
@@ -868,10 +868,8 @@ void expr_codegen( struct expr *e ){
             int rl = label_create();
             fprintf(outfile, "\tCMPQ $0, %%%s\n", scratch_name(e->left->reg));
             fprintf(outfile, "\tJE %s\n", label_name(tl));
-            // was 1, now 0
             fprintf(outfile, "\tMOVQ $0, %%%s\n", scratch_name(e->left->reg));
             fprintf(outfile, "\tJMP %s\n", label_name(rl));
-            // was 0, now 1
             fprintf(outfile, "%s:\n", label_name(tl));
             fprintf(outfile, "\tMOVQ $1, %%%s\n", scratch_name(e->left->reg));
             fprintf(outfile, "%s:\n", label_name(rl));
