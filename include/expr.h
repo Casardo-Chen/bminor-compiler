@@ -97,5 +97,6 @@ int expr_const(struct expr *e);
 void expr_codegen( struct expr *e);
 void expr_codegen_compare(struct expr *e);
 void expr_codegen_fcall(struct expr *e);
+void expr_codegen_fcall_float(struct expr *e);
 
 #endif

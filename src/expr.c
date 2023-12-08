@@ -777,39 +777,67 @@ void expr_codegen( struct expr *e ){
         case EXPR_ADD:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            fprintf(outfile, "\tADDQ %%%s, %%%s\n",
+            if (e->left->kind == EXPR_FLOAT_LIT){
+                fprintf(outfile, "\tADDSD %%%s, %%%s\n",
+                              scratch_name_float(e->left->reg),
+                              scratch_name_float(e->right->reg));
+                e->reg = e->right->reg;
+                scratch_free_float(e->left->reg);
+            } else {
+                fprintf(outfile, "\tADDQ %%%s, %%%s\n",
                               scratch_name(e->left->reg),
                               scratch_name(e->right->reg));
-            e->reg = e->right->reg;
-            scratch_free(e->left->reg);
+                e->reg = e->right->reg;
+                scratch_free(e->left->reg);
+            }
             break;
         case EXPR_SUB:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            fprintf(outfile, "\tSUBQ %%%s, %%%s\n",
-                              scratch_name(e->right->reg),
-                              scratch_name(e->left->reg));
-            e->reg = e->left->reg;
-            scratch_free(e->right->reg);
+            if (e->left->kind == EXPR_FLOAT_LIT){
+                fprintf(outfile, "\tSUBSD %%%s, %%%s\n",
+                              scratch_name_float(e->right->reg),
+                              scratch_name_float(e->left->reg));
+                e->reg = e->right->reg;
+                scratch_free_float(e->left->reg);
+            } else {
+                fprintf(outfile, "\tSUBQ %%%s, %%%s\n",
+                                scratch_name(e->right->reg),
+                                scratch_name(e->left->reg));
+                e->reg = e->left->reg;
+                scratch_free(e->right->reg);
+            }
             break;
         case EXPR_MUL:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            fprintf(outfile, "\tMOVQ %%%s, %%rax\n",scratch_name(e->left->reg)); // move left to rax
-            fprintf(outfile, "\tIMULQ %%%s\n",scratch_name(e->right->reg)); // mult
-            fprintf(outfile, "\tMOVQ %%rax, %%%s\n",scratch_name(e->right->reg));
-            e->reg = e->right->reg;
-            scratch_free(e->left->reg);
+            if (e->left->kind == EXPR_FLOAT_LIT){
+                fprintf(outfile, "\tMULSD %%%s, %%%s\n",scratch_name_float(e->left->reg),scratch_name_float(e->right->reg)); // move left to rax
+                e->reg = e->right->reg;
+                scratch_free_float(e->left->reg);
+            } else {
+                fprintf(outfile, "\tMOVQ %%%s, %%rax\n",scratch_name(e->left->reg)); // move left to rax
+                fprintf(outfile, "\tIMULQ %%%s\n",scratch_name(e->right->reg)); // mult
+                fprintf(outfile, "\tMOVQ %%rax, %%%s\n",scratch_name(e->right->reg));
+                e->reg = e->right->reg;
+                scratch_free(e->left->reg);
+            }
             break;
         case EXPR_DIV:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            fprintf(outfile, "\tMOVQ %%%s, %%rax\n",scratch_name(e->left->reg)); // move left to rax
-            fprintf(outfile, "\tCQO\n"); // sign extend
-            fprintf(outfile, "\tIDIVQ %%%s\n",scratch_name(e->right->reg)); // div
-            fprintf(outfile, "\tMOVQ %%rax, %%%s\n",scratch_name(e->right->reg));
-            e->reg = e->right->reg;
-            scratch_free(e->left->reg);
+            if (e->left->kind == EXPR_FLOAT_LIT){
+                fprintf(outfile, "\tDIVSD %%%s, %%%s\n",scratch_name_float(e->right->reg), scratch_name_float(e->left->reg)); // move left to rax
+                e->reg = e->right->reg;
+                scratch_free_float(e->left->reg);
+            } else {
+                fprintf(outfile, "\tMOVQ %%%s, %%rax\n",scratch_name(e->left->reg)); // move left to rax
+                fprintf(outfile, "\tCQO\n"); // sign extend
+                fprintf(outfile, "\tIDIVQ %%%s\n",scratch_name(e->right->reg)); // div
+                fprintf(outfile, "\tMOVQ %%rax, %%%s\n",scratch_name(e->right->reg));
+                e->reg = e->right->reg;
+                scratch_free(e->left->reg);
+            }
             break;
         case EXPR_MOD:
             expr_codegen(e->left);
@@ -915,10 +943,15 @@ void expr_codegen( struct expr *e ){
                     e->literal_value, 
                     scratch_name(e->reg));
 			break;
-        case EXPR_FLOAT_LIT: // TODO: reserved for float
-            printf("codegen error: floating not supported.\n");
-            exit(1);
+        case EXPR_FLOAT_LIT:{
+            char *endptr;
+            double value = strtod(e->string_literal, &endptr);
+            e->reg = scratch_alloc_float();
+			fprintf(outfile, "\tMOVSD $%lf, %%%s\n", 
+                    value, 
+                    scratch_name_float(e->reg));
             break;
+        }
         case EXPR_STR_LIT: {
             // create a string in data section
             int label = label_create();
@@ -1028,15 +1061,41 @@ void expr_codegen_fcall(struct expr *e){
     }
     /* push into registers */
     int counter = 0;
+    int float_counter = 0;
     for (struct expr *curr = e->right; curr; curr = curr->right){
+        struct type* t = expr_typecheck(curr->left);
         if (counter >= 6) {
             printf("codegen error: bminor supports maximum 6 arguments. too many arguments\n");
             exit(1);
         }
-        fprintf(outfile, "\tMOVQ %%%s, %%%s\n", scratch_name(curr->left->reg), arg_reg[counter]); // move into arg reg
-        scratch_free(curr->left->reg);   // free the scratch reg
+        if (t->kind == TYPE_FLOAT){
+            fprintf(outfile, "\tMOVSD %s, %%xmm%d\n", symbol_codegen(curr->left->symbol), float_counter); // move into arg reg
+            fprintf(outfile, "\tMOVQ $%d, %%%s\n", ++float_counter, arg_reg[counter]); // move into arg reg
+            scratch_free_float(curr->left->reg);
+        } else {
+            fprintf(outfile, "\tMOVQ %%%s, %%%s\n", scratch_name(curr->left->reg), arg_reg[counter]); // move into arg reg
+            scratch_free(curr->left->reg);   // free the scratch reg
+        }
         counter++;
     }
+    fprintf(outfile, "\tPUSHQ %%r10\n");    // push caller save register 
+    fprintf(outfile, "\tPUSHQ %%r11\n");    
+    fprintf(outfile, "\tCALL %s\n", e->left->name); // call the function
+    fprintf(outfile, "\tPOPQ %%r11\n");       // push caller save register 
+    fprintf(outfile, "\tPOPQ %%r10\n");
+    e->reg = scratch_alloc();
+    fprintf(outfile, "\tMOVQ %%rax, %%%s\n", scratch_name(e->reg));
+}
+
+void expr_codegen_fcall_float(struct expr *e){
+    /* deal with arguments */
+    struct expr *curr = e->right;
+    expr_codegen(curr->left);
+    /* push into registers */
+    int counter = 0;
+    fprintf(outfile, "\tMOVSD %s, %%xmm0\n", symbol_codegen(curr->left->symbol)); // move into arg reg
+    fprintf(outfile, "\tMOVQ $1, %%%s\n", arg_reg[counter]); // move into arg reg
+    scratch_free_float(curr->left->reg);
     fprintf(outfile, "\tPUSHQ %%r10\n");    // push caller save register 
     fprintf(outfile, "\tPUSHQ %%r11\n");    
     fprintf(outfile, "\tCALL %s\n", e->left->name); // call the function

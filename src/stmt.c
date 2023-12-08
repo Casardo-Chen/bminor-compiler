@@ -316,27 +316,36 @@ void stmt_codegen(struct stmt *s, const char *function_name){
                 switch (t->kind) {
                     case TYPE_BOOLEAN:
                         e = expr_create(EXPR_CALL, expr_create_name("print_boolean"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        expr_codegen_fcall(e);
+                        scratch_free(e->reg);
                         break;
                     case TYPE_CHARACTER:
                         e = expr_create(EXPR_CALL, expr_create_name("print_character"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        expr_codegen_fcall(e);
+                        scratch_free(e->reg);
                         break;
                     case TYPE_INTEGER:
                         e = expr_create(EXPR_CALL, expr_create_name("print_integer"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        expr_codegen_fcall(e);
+                        scratch_free(e->reg);
                         break;
                     case TYPE_STRING:
                         e = expr_create(EXPR_CALL, expr_create_name("print_string"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        expr_codegen_fcall(e);
+                        scratch_free(e->reg);
                         break;
-                    case TYPE_FLOAT: // TODO: reserved for float
-                        printf("codegen error: floating not supported.\n");
-                        exit(1);
+                    case TYPE_FLOAT:
+                        printf("curr->left val %s ",curr->left->string_literal);
+                        printf("curr->left type %d\n",curr->left->kind);
+                        e = expr_create(EXPR_CALL, expr_create_name("print_float"), expr_create(EXPR_ARG, curr->left, NULL, 8), 8);
+                        expr_codegen_fcall_float(e);
+                        scratch_free(e->reg);
                         break;
                     default:
                         printf("codegen error: an unprintable type %d was found in a print statement.\n", t->kind);
                         exit(1);
                         break;
                 }
-                expr_codegen_fcall(e);
-                scratch_free(e->reg);
             }
             break;
         case STMT_BR:

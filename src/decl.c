@@ -291,9 +291,7 @@ void decl_codegen_global(struct decl *d) {
             fprintf(outfile, ".data\n");
             fprintf(outfile, ".globl %s\n", d->name);
             fprintf(outfile, "%s:\n",d->name);
-            char es[BUFSIZ];
-            string_encode(d->value->string_literal, es);
-            fprintf(outfile, "\t.double %s\n", es);
+            fprintf(outfile, "\t.double %s\n", d->value->string_literal);
             break;
         default:
             printf("codegen error: unknown type kind %d.\n", d->type->kind);
@@ -308,7 +306,8 @@ void decl_codegen_local(struct decl *d) {
     if (d->value) {
         expr_codegen(d->value);
         if (d->type->kind == TYPE_FLOAT){
-            // TODO: finish the float case 
+            fprintf(outfile, "\tMOVSD %%%s, %s\n", scratch_name_float(d->value->reg), symbol_codegen(d->symbol));
+            scratch_free_float(d->value->reg);
         } else{
             fprintf(outfile, "\tMOVQ %%%s, %s\n", scratch_name(d->value->reg), symbol_codegen(d->symbol));
             scratch_free(d->value->reg);            

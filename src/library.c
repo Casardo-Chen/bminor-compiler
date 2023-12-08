@@ -14,6 +14,7 @@ Is effectively translated to the following C code:
 print_integer(x);
 print_boolean(b);
 print_string(s);
+void print_float(double y);
 
 And the following bminor code:
 
@@ -47,6 +48,10 @@ void print_character( char c )
 	printf("%c",c);
 }
 
+void print_float(double y) {
+    printf("%lf", y);
+}
+
 long integer_power( long x, long y )
 {
 	long result = 1;
@@ -56,4 +61,3 @@ long integer_power( long x, long y )
 	}
 	return result;
 }
-

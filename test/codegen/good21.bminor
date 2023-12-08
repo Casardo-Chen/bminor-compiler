@@ -1,0 +1,6 @@
+// Test float
+x:integer = 5;
+main:function float ()=
+{
+	return 5.5+3.3;
+}

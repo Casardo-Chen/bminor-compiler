@@ -1,6 +1,6 @@
 // Test float
 x:float = 5.5;
-main:function integer ()=
+main:function void ()=
 {
-	print x ^ 3;
+	print x;
 }
