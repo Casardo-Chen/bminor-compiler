@@ -749,6 +749,7 @@ struct type* expr_typecheck(struct expr* e){
  int expr_const(struct expr *e){
     if (!e) return 1;
     switch (e->kind){
+        case EXPR_NEG:
         case EXPR_CHAR_LIT:
         case EXPR_INT_LIT:
         case EXPR_STR_LIT:
@@ -841,7 +842,7 @@ void expr_codegen( struct expr *e ){
             break;
         case EXPR_NEG: // invert using not and twos complement and add 1
             expr_codegen(e->left);
-            fprintf(outfile, "\tNOTQ %%%s, %%rax\n", scratch_name(e->left->reg));
+            fprintf(outfile, "\tNOTQ %%%s\n", scratch_name(e->left->reg));
             fprintf(outfile, "\tADDQ $1, %%%s\n", scratch_name(e->left->reg));
             e->reg = e->left->reg;
             break;
@@ -937,29 +938,33 @@ void expr_codegen( struct expr *e ){
             break;
         }
         case EXPR_ASSIGN:
-            expr_codegen(e->left);
             expr_codegen(e->right);
-            fprintf(outfile, "\tMOVQ %%%s, %s\n",
-                              scratch_name(e->right->reg),
-                              symbol_codegen(e->left->symbol));
-            if (e->left->kind == EXPR_SUBT) {
+            if (e->left->kind == EXPR_IDENT) {
                 fprintf(outfile, "\tMOVQ %%%s, %s\n", 
-                                  scratch_name(e->left->reg), 
+                                  scratch_name(e->right->reg), 
                                   symbol_codegen(e->left->symbol));
             }
-            e->reg = e->left->reg;
-            scratch_free(e->right->reg);
+            if (e->left->kind == EXPR_SUBT){
+                expr_codegen(e->left->right);
+                expr_codegen(e->left->left);
+                fprintf(outfile, "\tMOVQ %%%s, (%%%s,%%%s,8)\n", 
+                    scratch_name(e->right->reg), 
+                    scratch_name(e->left->left->reg),
+                    scratch_name(e->left->right->reg));
+                scratch_free(e->left->right->reg);
+                scratch_free(e->left->left->reg);
+            }
+            e->reg = e->right->reg;
             break;
         case EXPR_SUBT:
             expr_codegen(e->left);
             expr_codegen(e->right);
-            e->reg = scratch_alloc();
             fprintf(outfile, "\tMOVQ (%%%s, %%%s, 8), %%%s\n",
                               scratch_name(e->left->reg),
                               scratch_name(e->right->reg),
-                              scratch_name(e->reg));
-            scratch_free(e->left->reg);
+                              scratch_name(e->left->reg));
             scratch_free(e->right->reg);
+            e->reg = e->left->reg;
             break;
         case EXPR_CALL:
             expr_codegen_fcall(e);

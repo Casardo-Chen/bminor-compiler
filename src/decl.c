@@ -170,7 +170,9 @@ void decl_typecheck( struct decl *d ){
         // Non-constant initializers for global variables.
         if(d->symbol->kind == SYMBOL_GLOBAL){
             if (!expr_const(d->value)){
-                printf("type error: non-constant initializers for global variables is invalid.\n");
+                printf("type error: non-constant initializers for global variables ");
+                expr_print(d->value);
+                printf(" is invalid.\n");
                 type_error++;
             }
         } else {
@@ -216,7 +218,7 @@ void decl_codegen_global(struct decl *d) {
             int l;
             if (d->value) {
                 l = label_create();
-                fprintf(outfile, "%s:\n", label_name(l));
+                fprintf(outfile, "%s:\n", string_label_name(l));
                 struct expr* arg = d->value->left;
                 while (arg) {
                     fprintf(outfile, "\t.quad %d\n", arg->left->literal_value);
@@ -225,7 +227,7 @@ void decl_codegen_global(struct decl *d) {
             }
             fprintf(outfile, ".globl %s\n", d->name);
             fprintf(outfile, "%s:\n", d->name);
-            fprintf(outfile, "\t.quad %s\n", d->value ? label_name(l) : "0");
+            fprintf(outfile, "\t.quad %s\n", d->value ? string_label_name(l) : "0");
             break;
         case TYPE_BOOLEAN:
         case TYPE_INTEGER:

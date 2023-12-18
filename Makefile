@@ -137,4 +137,8 @@ test-typechecker:
 	make
 	./bin/test_typechecker_unit.sh
 
+test-codegen:
+	make
+	./bin/test_codegen_unit.sh
+
 .PHONY: test

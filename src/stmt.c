@@ -303,7 +303,7 @@ void stmt_codegen(struct stmt *s, const char *function_name){
             stmt_codegen(s->body, function_name);
             if (s->next_expr){
                     expr_codegen(s->next_expr);
-                    scratch_free(s->expr->reg);
+                    scratch_free(s->next_expr->reg);
             }
             fprintf(outfile, "\tJMP %s\n", label_name(top_label));
             fprintf(outfile, "%s:\n", label_name(done_label));
