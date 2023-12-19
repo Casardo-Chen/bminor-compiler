@@ -61,18 +61,18 @@ An overview of B-Minor language can be found here: [2023 BMinor Language](https:
     ./bin/bminor --codegen input.bminor output.s
     gcc -g ouput.s library.c -o program
     ```
-3. You can run `make test` to test the functionality of the code. You may also each step in compiling respectively by running `make test-[encode|scan|parse|print|resolve|typecheck|codegen]`
+3. You can run `make test` to test the functionality of the code. You may also each step in compiling respectively by running `make test-[encoder|scanner|parser|printer|resolver|typechecker|codegen]`
 
-4. You can run `make clean` to remove all the outputs in the `test` folder and the `.o` files in `bin` folder.
+4. You can run `make clean` to remove all the outputs in the `test` folder and the `.o` files in the `bin` folder.
 
 ### What is in This Compiler
 There are 6 steps in B-Minor Compiler:
 - **Encoder:** encoding and decoding of strings
-- **Scanner:** applying the Flex Scanner;Generator to scan the tokens in a `.bminor` file via regular expression matching;
+- **Scanner:** applying the Flex Scanner Generator to scan the tokens in a `.bminor` file via regular expression matching;
 - **Parser:** applying the Bison Parser Generator to parse the tokens using Context Free Grammar;
 - **Printer:** pretty printing out the same `.bminor` based on the constructed Abstract Synax Tree (AST);
 - **Resolver & Typechecker:** traversing the AST and checking the semantic correctness of the program, particularly focusing on name resolution and type checking;
-- **Codegen:** reading in a B-minor program and emit an 64-bit X86 assembly language program that can be assembled, linked, and run.
+- **Codegen:** reading in a B-minor program and emitting a 64-bit X86 assembly language program that can be assembled, linked, and run.
 
 ### TODOs:
 - Implement support for floating point values. It should be possible to declare and use floating point values at global scope, local scope, in function paramers, in arrays, in expressions, and in print statements.
